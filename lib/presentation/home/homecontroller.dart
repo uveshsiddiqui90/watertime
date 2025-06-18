@@ -107,5 +107,14 @@ class Homecontroller extends GetxController
     }
   }
 
+void getAllNotificationDetails() async {
+    final notifications = await NotificationService.getAllScheduledNotifications();
+    for (var notification in notifications.values) {
+      print('Notification ID: ${notification.id}, Title: ${notification.title}, Body: ${notification.body},Time: ${notification.scheduledTime} , Reminder ID: ${notification.reminderId}');
+    }
+  }
+
+
+
 
 }

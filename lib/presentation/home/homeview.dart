@@ -8,6 +8,7 @@ import 'package:watertime/presentation/home/homecontroller.dart';
 
 class HomeView extends StatelessWidget {
   final Homecontroller homecontroller = Get.put(Homecontroller());
+  final WaterController waterController = Get.put(WaterController());
 
    HomeView({super.key});
 
@@ -22,9 +23,25 @@ class HomeView extends StatelessWidget {
         decoration: BoxDecoration(color: Colors.white),
         child: Stack(
           children: [
-         
-          WaterTrackerWidget(),
-            
+         Column(
+           children: [
+             WaterTrackerWidget(),
+             InkWell(
+              onTap: () {
+                print("Get all scheduled notifications");
+                homecontroller.getAllNotificationDetails();               
+                 },
+               child: Container(
+                 width: MediaQuery.of(context).size.width-50,
+                 height: 100,
+                  decoration: BoxDecoration(
+                   borderRadius: BorderRadius.circular(10),
+                   color: Colors.blueAccent.shade100,
+                 ),
+               ),
+             ),
+           ],
+         ),
 
             Positioned(
               bottom: 0,

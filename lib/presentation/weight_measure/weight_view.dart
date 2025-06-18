@@ -5,8 +5,8 @@ import 'package:watertime/constants/widgets.dart';
 import 'package:watertime/presentation/weight_measure/weight_controller.dart';
 
 class WeightView extends GetView<WeightController>{
-  const WeightView({super.key});
-
+   WeightView({super.key});
+WeightController weightController = Get.put(WeightController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(

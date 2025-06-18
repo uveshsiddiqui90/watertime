@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:watertime/services/notifications/notification_details.dart';
 
 
 class NotificationService 
@@ -54,6 +56,9 @@ if (scheduledTime.isBefore(now)) {
       '💧 Water Reminder',
       'Time to drink $amount water!',
       scheduledTime,
+      payload: jsonEncode({ // Important: Set proper payload
+      'scheduled_time': scheduledTime.millisecondsSinceEpoch,
+    }),
         NotificationDetails(
         android : AndroidNotificationDetails(
           'water_channel_v2',
@@ -152,6 +157,60 @@ static Future<void> showTestNotification() async {
     ),
   );
 }
+
+ static Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await _notifications.pendingNotificationRequests();
+  }
+
+  // // Get specific notification details by ID
+  // Future<PendingNotificationRequest?> getNotificationById(int id) async {
+  //   final notifications = await getPendingNotifications();
+  //   return notifications.firstWhere((n) => n.id == id, orElse: () => null);
+  // }
+
+  
+  // Get all scheduled notifications with details
+ static Future<Map<int, NotificationDetailModel>> getAllScheduledNotifications() async {
+    final pending = await getPendingNotifications();
+    final Map<int, NotificationDetailModel> notifications = {};
+    
+    for (var notification in pending) 
+    {
+      try {
+        final payload = notification.payload != null 
+            ? jsonDecode(notification.payload!) 
+            : {};
+            
+        final scheduledTime = payload is Map 
+            ? (payload['scheduled_time'] as int? ?? 0)
+            : 0;
+            
+        print('Notification ID: ${notification.id}, Scheduled Time: $scheduledTime');
+
+            
+        notifications[notification.id] = NotificationDetailModel(
+          id: notification.id,
+          title: notification.title,
+          body: notification.body,
+          scheduledTime: scheduledTime > 0
+              ? DateTime.fromMillisecondsSinceEpoch(scheduledTime)
+              : null,
+          reminderId: payload is Map ? payload['reminder_id'] as int? : null,
+        );
+      } catch (e) {
+        print('Error parsing notification payload: $e');
+        notifications[notification.id] = NotificationDetailModel(
+          id: notification.id,
+          title: notification.title,
+          body: notification.body,
+        );
+      }
+    }
+    
+    return notifications;
+  }
+
+  
 
 
 }

@@ -8,6 +8,7 @@ import 'package:watertime/presentation/routes/app_pages.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:watertime/services/notifications/notification_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  Flutter
 
 
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget 
+{
   const MyApp({super.key});
  
 
