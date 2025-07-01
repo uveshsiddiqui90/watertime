@@ -3,15 +3,16 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:watertime/database/remider.dart';
 import 'user.dart';
 part 'app_database.g.dart'; 
 
-@DriftDatabase(tables: [Users])
+@DriftDatabase(tables: [Users, Reminders])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 10;
 
 
 
@@ -61,22 +62,42 @@ Future<User?> getLatestUser() async {
       .getSingleOrNull();
 }
 
+// Add a reminder
+Future<int> insertReminder(RemindersCompanion reminder) {
+  return into(reminders).insert(reminder);
+}
+
+// Get reminders for user
+Future<List<Reminder>> getRemindersForUser(int userId) {
+  return (select(reminders)..where((r) => r.userId.equals(userId))).get();
+}
+
+// Delete
+Future<void> deleteReminder(int id) {
+  return (delete(reminders)..where((r) => r.id.equals(id))).go();
+}
+
+Future<void> deleteAllReminders() async {
+  await delete(reminders).go();
+}
+
+// 🔹 Get all reminders (no user filtering)
+Future<List<Reminder>> getAllReminders() {
+  return select(reminders).get();
+}
+
+
 
 @override
-  MigrationStrategy get migration => MigrationStrategy(
-    // Runs when the database is first created
-    onCreate: (Migrator m) async {
-      await m.createAll();
-    },
-    // Runs when upgrading versions
-    onUpgrade: (Migrator m, int from, int to) async {
-      if (from < 2) {
-        // Add new columns when upgrading to version 2
-        await m.addColumn(users, users.gender);
-        await m.addColumn(users, users.weight);
-      }
-    },
-  );
+MigrationStrategy get migration => MigrationStrategy(
+  onCreate: (m) => m.createAll(),
+  onUpgrade: (m, from, to) async {
+    await m.createAll();  // Important for dev/testing
+  },
+);
+
+
+
 
 }
 

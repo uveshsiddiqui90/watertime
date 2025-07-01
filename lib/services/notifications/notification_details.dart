@@ -4,6 +4,7 @@ class NotificationDetailModel {
   final String? body;
   final DateTime? scheduledTime;
   final int? reminderId;
+  final String? waterML;
 
   NotificationDetailModel({
     required this.id,
@@ -11,5 +12,8 @@ class NotificationDetailModel {
     this.body,
     this.scheduledTime,
     this.reminderId,
+    this.waterML,
   });
+
+  
 }

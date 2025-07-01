@@ -10,4 +10,12 @@ class Users extends Table {
   IntColumn get hour => integer()();
   IntColumn get minute => integer()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  IntColumn get reminderId => integer().nullable()(); // Link to water reminder
+  TextColumn get title => text()();
+  TextColumn get body => text()();
+  DateTimeColumn get scheduledTime => dateTime()();
+  
+  
+  
+  
 }

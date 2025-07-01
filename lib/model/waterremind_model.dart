@@ -6,6 +6,7 @@ class WaterRemindModel {
   final TimeOfDay? timeOfDay;
   final int? id;
   final bool isActive;
+  String? msg;
 
   // Constructor
   WaterRemindModel({
@@ -14,6 +15,7 @@ class WaterRemindModel {
     this.timeOfDay,
     this.id,
     this.isActive = true,
+    this.msg,
   
   });
   String get formattedTime => 
@@ -25,6 +27,7 @@ class WaterRemindModel {
     TimeOfDay? timeOfDay,
     int? id,
     bool? isActive,
+    String? msg,
   }) {
     return WaterRemindModel(
       time: time ?? this.time,
@@ -32,6 +35,7 @@ class WaterRemindModel {
       timeOfDay: timeOfDay ?? this.timeOfDay,
       id: id ?? this.id,
       isActive: isActive ?? this.isActive,
+      msg: msg ?? this.msg,
     );
   }
 

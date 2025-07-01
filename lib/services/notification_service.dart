@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:watertime/database/app_database.dart';
 import 'package:watertime/services/notifications/notification_details.dart';
 
 
@@ -11,7 +12,9 @@ class NotificationService
 {
   static final _notifications = FlutterLocalNotificationsPlugin();
 
+  final AppDatabase _database;
 
+  NotificationService(this._database);
 
 
     static Future<void> initialize() async {
@@ -196,6 +199,7 @@ static Future<void> showTestNotification() async {
               ? DateTime.fromMillisecondsSinceEpoch(scheduledTime)
               : null,
           reminderId: payload is Map ? payload['reminder_id'] as int? : null,
+          waterML: payload is Map ? payload['water_ml'] as String? : null,
         );
       } catch (e) {
         print('Error parsing notification payload: $e');
@@ -210,6 +214,21 @@ static Future<void> showTestNotification() async {
     return notifications;
   }
 
+static Future<void> deleteAllNotifications() async {
+  
+  try {
+    // Cancel all pending notifications
+    await _notifications.cancelAll();
+    
+    // Clear all delivered notifications (Android only)
+    await _notifications.cancelAll(); // This clears delivered notifs on Android
+    
+    print('All notifications deleted successfully');
+  } catch (e) {
+    print('Error deleting notifications: $e');
+    throw Exception('Failed to delete notifications: $e');
+  }
+}
   
 
 

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:watertime/constants/waterprogress_indicator/water_progress.dart';
 import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/presentation/home/homecontroller.dart';
+import 'package:watertime/services/notification_service.dart';
 
 class HomeView extends StatelessWidget {
   final Homecontroller homecontroller = Get.put(Homecontroller());
   final WaterController waterController = Get.put(WaterController());
 
-   HomeView({super.key});
+  HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Get.find<WaterController>().updateConsumedAmount(100.0); 
-    Get.find<WaterController>().updateTargetAmount(10000.0); 
+    Get.find<WaterController>().updateConsumedAmount(100.0);
+    Get.find<WaterController>().updateTargetAmount(10000.0);
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -23,26 +25,95 @@ class HomeView extends StatelessWidget {
         decoration: BoxDecoration(color: Colors.white),
         child: Stack(
           children: [
-         Column(
-           children: [
-             WaterTrackerWidget(),
-             InkWell(
-              onTap: () {
-                print("Get all scheduled notifications");
-                homecontroller.getAllNotificationDetails();               
-                 },
-               child: Container(
-                 width: MediaQuery.of(context).size.width-50,
-                 height: 100,
-                  decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(10),
-                   color: Colors.blueAccent.shade100,
-                 ),
-               ),
-             ),
-           ],
-         ),
+            Column(
+              children: [
+                WaterTrackerWidget(),
+                InkWell(
+                  onTap: () {
+                    print("Fetching all notifications");
+                    homecontroller.getAllNotificationDetails();
+                  },
+                  child: Obx(
+                    () {
+                      final nextReminder = homecontroller.nextReminder;
+                    //  print("Next Reminder: ${nextReminder?.timeOfDay?.hour}:${nextReminder?.timeOfDay?.minute} - ${nextReminder?.waterML} ML");
+                      //print("Next Reminder: ${DateFormat('hh:mm a').format(DateTime(nextReminder!.timeOfDay!.hour.toInt()))}");
+                      
+                      return Container(
+                      width: MediaQuery.of(context).size.width - 50,
+                      height: 100.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.blueAccent.shade100,
+                      ),
+                      child: Column(children: [
+                        SizedBox(height: 10.h),
+                        Text("Next Reminder",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        SizedBox(height: 10.h),
+                        Text(
+                          "${DateFormat('hh:mm a').format(DateTime(0, 1, 1, nextReminder?.timeOfDay?.hour ?? 0, nextReminder?.timeOfDay?.minute ?? 0))} - ${nextReminder?.waterML} ML",
+                        ),
+                        SizedBox(height: 10.h),
+                        Text(
+                          "In ${homecontroller.getTimeRemaining(nextReminder?.timeOfDay?? TimeOfDay.now())} minutes",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        
+                      ],),
+                      );
+                    
+                   }),
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        NotificationService.deleteAllNotifications();
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        color: Colors.red,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    InkWell(
+                      onTap: () {
+                        homecontroller.getAllRemindersfromDatabase();
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    InkWell(
+                      onTap: () {
+                        homecontroller.deleteAllReminders();
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        color: Colors.green,
+                      ),
+                    ),
+                    
 
+                    
+
+                  ],
+                ),
+              ],
+            ),
             Positioned(
               bottom: 0,
               child: Container(
@@ -53,6 +124,11 @@ class HomeView extends StatelessWidget {
                   () => ListView.builder(
                     itemCount: homecontroller.waterRemindList.length,
                     itemBuilder: (context, index) {
+                      if (index >= homecontroller.waterRemindList.length) {
+                        return SizedBox.shrink();
+                      }
+                      final reminder = homecontroller.waterRemindList[index];
+
                       return Container(
                         width: MediaQuery.of(context).size.width,
                         height: 80,
@@ -81,7 +157,7 @@ class HomeView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "${homecontroller.waterRemindList[index].time}",
+                                  "${homecontroller.waterRemindList[index].timeOfDay != null ? homecontroller.waterRemindList[index].timeOfDay!.hour.toString().padLeft(2, '0') : '--'}:${homecontroller.waterRemindList[index].timeOfDay != null ? homecontroller.waterRemindList[index].timeOfDay!.minute.toString().padLeft(2, '0') : '--'} ${homecontroller.waterRemindList[index].timeOfDay != null && homecontroller.waterRemindList[index].timeOfDay!.hour >= 12 ? 'PM' : 'AM' }",
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -101,7 +177,8 @@ class HomeView extends StatelessWidget {
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
                               onPressed: () {
-                                homecontroller.waterRemindList.removeAt(index);
+                                homecontroller.deleteNotification(reminder.id!);
+                                homecontroller.db.deleteReminder(reminder.id!);
                               },
                             ),
                           ],
