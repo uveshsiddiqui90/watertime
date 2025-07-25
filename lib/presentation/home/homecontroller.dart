@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/database/app_database.dart';
+import 'package:watertime/main.dart';
 import 'package:watertime/model/waterremind_model.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:drift/drift.dart' as drift;
@@ -16,18 +19,20 @@ class Homecontroller extends GetxController
  Rx<TextEditingController> waterMLController = TextEditingController().obs;
  RxInt nextId = 1.obs;
  Rx<DateTime> timeFornotification = DateTime.now().obs;
- double targetAmount = 2000.0;
- double consumedAmountuser = 800.0;
+ RxInt targetAmount = 0.obs;
  var db = AppDatabase();
+ RxString userName = ''.obs;
+  WaterController waterController = Get.put(WaterController());
 
-  
   @override
   void onInit() {
     super.onInit();
     // Initialize the notification service
     NotificationService.initialize();
     getAllRemindersfromDatabase(); 
+    getUserData();
      // Update next reminder every minute
+     
     Timer.periodic(Duration(minutes: 1), (timer) {
     update(); // Triggers UI rebuild
   });
@@ -46,82 +51,232 @@ class Homecontroller extends GetxController
 
   // Function to add a new water reminder
 
- addWaterRemind() async{
-    if (waterMLController.value.text.isNotEmpty) {
-      WaterRemindModel waterRemind = WaterRemindModel(
-        time: getSelectedTime.value,
-        waterML: waterMLController.value.text,
-        timeOfDay:timeFornotification.value.isAfter(DateTime.now())
-            ? TimeOfDay.fromDateTime(timeFornotification.value)
-            : TimeOfDay.now(),
-        id: nextId.value++, 
-      );
+//  addWaterRemind() async
+//  {
+//     if (waterMLController.value.text.isNotEmpty) {
+//       WaterRemindModel waterRemind = WaterRemindModel(
+//         time: getSelectedTime.value,
+//         waterML: waterMLController.value.text,
+//         timeOfDay:timeFornotification.value.isAfter(DateTime.now())
+//             ? TimeOfDay.fromDateTime(timeFornotification.value)
+//             : TimeOfDay.now(),
+//         id: nextId.value++, 
+//       );
+//       print("value of water remind: ${waterRemind.timeOfDay!.hour} : ${waterRemind.timeOfDay!.minute}");
      
-    await db.insertReminder(RemindersCompanion(
+//     await db.insertReminder(RemindersCompanion(
+//     userId: drift.Value(1),
+//     title: drift.Value('Drink Water'),
+//     body: drift.Value('Time to stay hydrated!'),
+//     scheduledTime: drift.Value(
+//       DateTime(
+//         DateTime.now().year,
+//         DateTime.now().month,
+//         DateTime.now().day,
+//         (timeFornotification.value.isAfter(DateTime.now())
+//                 ? TimeOfDay.fromDateTime(timeFornotification.value)
+//                 : TimeOfDay.now()).hour,
+//         (timeFornotification.value.isAfter(DateTime.now())
+//                 ? TimeOfDay.fromDateTime(timeFornotification.value)
+//                 : TimeOfDay.now()).minute,
+//       ),
+//     ),
+//     reminderId: drift.Value(nextId.value++), 
+//     time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)), // Use format method to get "HH:mm AM/PM"
+//     waterML: drift.Value(waterMLController.value.text),           // ✅ New field
+//   ));
+   
+//    final reminders = await db.getAllReminders();
+//     waterRemindList.clear();
+//     for (var reminder in reminders) {
+//       waterRemindList.add(WaterRemindModel(
+//         time: reminder.scheduledTime.toString(),
+//         waterML: reminder.waterML,
+//         timeOfDay: TimeOfDay(hour: reminder.scheduledTime.hour, minute: reminder.scheduledTime.minute),
+//         id: reminder.id,
+//         isActive: reminder.isActive,
+//       ));
+
+//        // Sort the list
+//       waterRemindList.sort((a, b) {
+//       final aMinutes = a.timeOfDay!.hour * 60 + a.timeOfDay!.minute;
+//       final bMinutes = b.timeOfDay!.hour * 60 + b.timeOfDay!.minute;
+//       return aMinutes.compareTo(bMinutes);
+//     });
+// /// 🔄 Get latest reminder from DB (trustable)
+//     final allReminders = await db.getAllReminders();
+//     final newReminder = allReminders.last;
+
+//    waterRemindList.refresh();
+      
+//       //_scheduleNotification(waterRemind);
+//       scheduleNotificationFromDB(newReminder);
+//       waterMLController.value.clear();
+
+      
+
+//     }
+//  } 
+//     else {
+//       Get.snackbar('Error', 'Please enter the amount of water in ML');
+//     }
+//    }
+
+
+addWaterRemind() async {
+  if (waterMLController.value.text.isEmpty) {
+    Get.snackbar(
+      'Error',
+      'Please enter the amount of water in ML',
+      snackPosition: SnackPosition.TOP,
+    );
+    return;
+  }
+
+  final now = DateTime.now();
+  final selected = timeFornotification.value;
+
+  // Adjust scheduledTime to next day if selected time is before now
+  DateTime scheduledTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    selected.hour,
+    selected.minute,
+  );
+
+  if (!scheduledTime.isAfter(now)) {
+    // Add 1 day if selected time is earlier than now
+    scheduledTime = scheduledTime.add(Duration(days: 1));
+  }
+
+  // Double-check: Scheduled time must still be in future
+  if (!scheduledTime.isAfter(now)) {
+    Get.snackbar(
+      'Invalid Time',
+      'Please select a valid future time',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red,
+    );
+    return;
+  }
+
+  WaterRemindModel waterRemind = WaterRemindModel(
+    time: getSelectedTime.value,
+    waterML: waterMLController.value.text,
+    timeOfDay: TimeOfDay.fromDateTime(scheduledTime),
+    id: nextId.value++,
+  );
+
+  await db.insertReminder(RemindersCompanion(
     userId: drift.Value(1),
     title: drift.Value('Drink Water'),
     body: drift.Value('Time to stay hydrated!'),
-    scheduledTime: drift.Value(
-      DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        (timeFornotification.value.isAfter(DateTime.now())
-                ? TimeOfDay.fromDateTime(timeFornotification.value)
-                : TimeOfDay.now()).hour,
-        (timeFornotification.value.isAfter(DateTime.now())
-                ? TimeOfDay.fromDateTime(timeFornotification.value)
-                : TimeOfDay.now()).minute,
-      ),
-    ),
-    reminderId: drift.Value(nextId.value++), 
-    time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)), // Use format method to get "HH:mm AM/PM"
-    waterML: drift.Value(waterMLController.value.text),           // ✅ New field
+    scheduledTime: drift.Value(scheduledTime),
+    reminderId: drift.Value(nextId.value++),
+    time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)),
+    waterML: drift.Value(waterMLController.value.text),
   ));
-   
-   final reminders = await db.getAllReminders();
-    waterRemindList.clear();
-    for (var reminder in reminders) {
-      waterRemindList.add(WaterRemindModel(
-        time: reminder.scheduledTime.toString(),
-        waterML: reminder.waterML,
-        timeOfDay: TimeOfDay(hour: reminder.scheduledTime.hour, minute: reminder.scheduledTime.minute),
-        id: reminder.id,
-        isActive: reminder.isActive,
-      ));
 
-       // Sort the list
-      waterRemindList.sort((a, b) {
-      final aMinutes = a.timeOfDay!.hour * 60 + a.timeOfDay!.minute;
-      final bMinutes = b.timeOfDay!.hour * 60 + b.timeOfDay!.minute;
-      return aMinutes.compareTo(bMinutes);
-    });
-/// 🔄 Get latest reminder from DB (trustable)
-    final allReminders = await db.getAllReminders();
-    final newReminder = allReminders.last;
+  final reminders = await db.getAllReminders();
+  waterRemindList.clear();
 
-   waterRemindList.refresh();
-      
-      //_scheduleNotification(waterRemind);
-      scheduleNotificationFromDB(newReminder);
-      waterMLController.value.clear();
+  for (var reminder in reminders) {
+    waterRemindList.add(WaterRemindModel(
+      time: reminder.scheduledTime.toString(),
+      waterML: reminder.waterML,
+      timeOfDay: TimeOfDay(
+        hour: reminder.scheduledTime.hour,
+        minute: reminder.scheduledTime.minute,
+      ),
+      id: reminder.id,
+      isActive: reminder.isActive,
+    ));
+  }
 
-      
+  // Sort reminders by time
+  waterRemindList.sort((a, b) {
+    final aMinutes = a.timeOfDay!.hour * 60 + a.timeOfDay!.minute;
+    final bMinutes = b.timeOfDay!.hour * 60 + b.timeOfDay!.minute;
+    return aMinutes.compareTo(bMinutes);
+  });
 
-    }
- } 
-    else {
-      Get.snackbar('Error', 'Please enter the amount of water in ML');
-    }
-   }
+  waterRemindList.refresh();
 
-   Future<void> _scheduleNotification(WaterRemindModel reminder) async {
+  final newReminder = reminders.last;
+  scheduleNotificationFromDB(newReminder);
+
+  waterMLController.value.clear();
+}
+
+
+WaterRemindModel? getNextReminder(List<WaterRemindModel> reminders) {
+  final now = DateTime.now();
+
+  final upcoming = reminders.where((reminder) {
+    final reminderTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      reminder.timeOfDay?.hour ?? 0,
+      reminder.timeOfDay?.minute ?? 0,
+    );
+
+    final adjustedTime = reminderTime.isBefore(now)
+        ? reminderTime.add(Duration(days: 1))
+        : reminderTime;
+
+    return adjustedTime.isAfter(now);
+  }).toList();
+
+  if (upcoming.isEmpty) return null;
+
+  upcoming.sort((a, b) {
+    final aDT = DateTime(now.year, now.month, now.day, a.timeOfDay!.hour, a.timeOfDay!.minute);
+    final bDT = DateTime(now.year, now.month, now.day, b.timeOfDay!.hour, b.timeOfDay!.minute);
+
+    final aAdjusted = aDT.isBefore(now) ? aDT.add(Duration(days: 1)) : aDT;
+    final bAdjusted = bDT.isBefore(now) ? bDT.add(Duration(days: 1)) : bDT;
+
+    return aAdjusted.compareTo(bAdjusted);
+  });
+
+  return upcoming.first;
+}
+
+
+
+
+Future<void> _scheduleNotification(WaterRemindModel reminder) async {
     await NotificationService.scheduleWaterReminder(
       id: reminder.id!, // Using the model's ID
       time: reminder.timeOfDay!, // Using TimeOfDay from model
       amount: reminder.waterML!, // Using amount from model
     );
-    
+
+
+   final now = DateTime.now();
+        final scheduledDateTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          reminder.timeOfDay!.hour,
+          reminder.timeOfDay!.minute,
+        );
+
+        final finalSchedule = scheduledDateTime.isBefore(now)
+            ? scheduledDateTime.add(Duration(days: 1))
+            : scheduledDateTime;
+
+        await AndroidAlarmManager.oneShotAt(
+          finalSchedule,
+          reminder.id!,
+          callback,
+          exact: true,
+          wakeup: true,
+          rescheduleOnReboot: true,
+        );
+
   }
 
 
@@ -129,6 +284,7 @@ Future<void> scheduleNotificationFromDB(Reminder reminder) async {
   final time = TimeOfDay(
     hour: reminder.scheduledTime.hour,
     minute: reminder.scheduledTime.minute,
+    
   );
 
   await NotificationService.scheduleWaterReminder(
@@ -161,6 +317,23 @@ Future<void> scheduleNotificationFromDB(Reminder reminder) async {
    print('Fetched ${waterRemindList.length} reminders from database');
 
  }
+
+
+
+
+
+
+String formatTime(TimeOfDay? time) {
+  if (time == null) return '--:--';
+
+  final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+  final minute = time.minute.toString().padLeft(2, '0');
+  final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+
+  return '${hour.toString().padLeft(2, '0')}:$minute $period';
+}
+
+
     @override
   void onClose() {
     NotificationService.cancelAllReminders();
@@ -254,7 +427,51 @@ void deleteAllReminders() async {
   NotificationService.cancelAllReminders();
   Get.snackbar('Success', 'All reminders deleted successfully');
 
-
 }
+
+int calculateWaterTarget({required double weightInKg, required String gender}) 
+{
+  if (gender.toLowerCase() == 'male') {
+    return (weightInKg * 35).round(); // ml
+  } else {
+    return (weightInKg * 31).round(); // ml
+  }
+}
+
+RxDouble userWeight = 70.0.obs; 
+RxString selectedGender = ''.obs;
+
+ Future<void> getUserData() async {
+  final user = await db.getLatestUser();  // or getUserById(1)
+  print('user data retrieved: ${user}');
+  if (user != null) {
+    userName.value = user.name ?? '';
+    userWeight.value = user.weight ?? 70.0; // Default weight if null
+    
+    if(user.gender =='male'){
+      selectedGender.value = 'male';
+      }else{
+        selectedGender.value = 'female';
+      }
+
+    print('User data retrieved:${user.weight}');
+    print('User data retrieved:${user.gender}');
+    print(user.name);  // name, weight, gender etc.
+  }
+  print("value of calculate water Target: ${calculateWaterTarget(weightInKg: user?.weight??70.0, gender: user?.gender??'')}");
+ 
+  targetAmount.value = calculateWaterTarget(
+    weightInKg: user?.weight ?? 70.0,
+    gender: user?.gender??''
+
+  );
+
+  waterController.updateConsumedAmount(0.0);
+  waterController.updateTargetAmount(targetAmount.value.toDouble());
+  
+}
+
+
+
 
 }

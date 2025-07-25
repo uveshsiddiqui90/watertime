@@ -5,8 +5,8 @@ import 'dart:math' as math;
 class WaterController extends GetxController 
     with GetSingleTickerProviderStateMixin {
   // Reactive variables
-  final RxDouble targetAmount = 2000.0.obs;
-  final RxDouble consumedAmount = 500.0.obs;
+  final RxDouble targetAmount = 0.0.obs;
+  final RxDouble consumedAmount = 0.0.obs;
   
   // Animation controller
   late AnimationController waveController;

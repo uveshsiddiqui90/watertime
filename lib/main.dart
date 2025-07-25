@@ -4,18 +4,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watertime/database/app_database.dart';
+import 'package:watertime/presentation/boarding/boarding_view.dart';
 import 'package:watertime/presentation/home/homeview.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
+import 'package:watertime/presentation/weight_measure/weight_view.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+
+
+void callback() {
+  NotificationService.backgroundCallback();
+}
 
 void main() async 
 {
   WidgetsFlutterBinding.ensureInitialized();
+  await AndroidAlarmManager.initialize();
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata')); 
   await NotificationService.requestPermissions();
@@ -24,12 +32,10 @@ void main() async
   Get.put<AppDatabase>(db);
  // MyApp.deleteDbFile(); // Delete old DB file if exists
  MyApp.rescheduleAllNotifications();
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
-
-
 
 
 class MyApp extends StatelessWidget 
@@ -51,13 +57,13 @@ class MyApp extends StatelessWidget
          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0),),
          child: GetMaterialApp(
            title: 'Flutter Demo',
-           initialRoute: AppRoutes.HOME,  //AppRoutes.BOARDING,
+           initialRoute: AppRoutes.HOME,  //     ,  
            getPages: AppPages.routes,
            theme: ThemeData(
            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           ),
           debugShowCheckedModeBanner: false,
-          home:  HomeView()//BoardingView(),
+          home: HomeView()  
        ),
        );
       });

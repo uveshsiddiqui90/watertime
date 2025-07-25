@@ -11,4 +11,8 @@ class AppImage {
   static const String error = 'assets/images/error.png';
   static const String success = 'assets/images/success.png';
   static const String warning = 'assets/images/warning.png';
+  static const String waterwave = 'assets/images/waterwave.png';
+  static const String watersmily = 'assets/images/water_smily.png';
+  static const String maleavtar= 'assets/images/male_avtar.png';
+  static const String femaleavtar = 'assets/images/female_avtar.png';
 }

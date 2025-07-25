@@ -27,7 +27,7 @@ Future<void> saveUserAndNavigate() async {
     return;
   }
   print("value of name is: $name");
-  final insertedId = await db.insertUser( name);
+  final insertedId = await db.insertUser(name);
   
   if (insertedId > 0) 
   {

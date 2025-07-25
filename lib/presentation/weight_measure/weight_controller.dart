@@ -5,7 +5,7 @@ import 'package:watertime/presentation/routes/app_pages.dart';
 
 class WeightController extends GetxController 
 {
-  final RxInt userWeight = 0.obs;
+  final RxInt userWeight = 70.obs;
   RxString userName = ''.obs;
   RxString genderSelection = ''.obs;  
   var db = AppDatabase();
@@ -43,8 +43,7 @@ double calculateDailyWaterRequirement()
   } else if (genderSelection.value.toLowerCase() == 'female') {
     return baseAmount.value * 0.9; // 10% less for females
   }
-  
-  return baseAmount.value; // Default if gender not specified
+   return baseAmount.value; // Default if gender not specified
 }
 
 

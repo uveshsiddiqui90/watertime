@@ -48,94 +48,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _hourMeta = const VerificationMeta('hour');
   @override
-  late final GeneratedColumn<int> hour = GeneratedColumn<int>(
-    'hour',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _minuteMeta = const VerificationMeta('minute');
-  @override
-  late final GeneratedColumn<int> minute = GeneratedColumn<int>(
-    'minute',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isActiveMeta = const VerificationMeta(
-    'isActive',
-  );
-  @override
-  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
-    'is_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_active" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _reminderIdMeta = const VerificationMeta(
-    'reminderId',
-  );
-  @override
-  late final GeneratedColumn<int> reminderId = GeneratedColumn<int>(
-    'reminder_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
-  @override
-  late final GeneratedColumn<String> body = GeneratedColumn<String>(
-    'body',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _scheduledTimeMeta = const VerificationMeta(
-    'scheduledTime',
-  );
-  @override
-  late final GeneratedColumn<DateTime> scheduledTime =
-      GeneratedColumn<DateTime>(
-        'scheduled_time',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    gender,
-    weight,
-    hour,
-    minute,
-    isActive,
-    reminderId,
-    title,
-    body,
-    scheduledTime,
-  ];
+  List<GeneratedColumn> get $columns => [id, name, gender, weight];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -169,61 +83,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
       );
     }
-    if (data.containsKey('hour')) {
-      context.handle(
-        _hourMeta,
-        hour.isAcceptableOrUnknown(data['hour']!, _hourMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_hourMeta);
-    }
-    if (data.containsKey('minute')) {
-      context.handle(
-        _minuteMeta,
-        minute.isAcceptableOrUnknown(data['minute']!, _minuteMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_minuteMeta);
-    }
-    if (data.containsKey('is_active')) {
-      context.handle(
-        _isActiveMeta,
-        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
-      );
-    }
-    if (data.containsKey('reminder_id')) {
-      context.handle(
-        _reminderIdMeta,
-        reminderId.isAcceptableOrUnknown(data['reminder_id']!, _reminderIdMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('body')) {
-      context.handle(
-        _bodyMeta,
-        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_bodyMeta);
-    }
-    if (data.containsKey('scheduled_time')) {
-      context.handle(
-        _scheduledTimeMeta,
-        scheduledTime.isAcceptableOrUnknown(
-          data['scheduled_time']!,
-          _scheduledTimeMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_scheduledTimeMeta);
-    }
     return context;
   }
 
@@ -249,34 +108,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.double,
         data['${effectivePrefix}weight'],
       ),
-      hour: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}hour'],
-      )!,
-      minute: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}minute'],
-      )!,
-      isActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_active'],
-      )!,
-      reminderId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}reminder_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      body: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}body'],
-      )!,
-      scheduledTime: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}scheduled_time'],
-      )!,
     );
   }
 
@@ -291,26 +122,7 @@ class User extends DataClass implements Insertable<User> {
   final String? name;
   final String? gender;
   final double? weight;
-  final int hour;
-  final int minute;
-  final bool isActive;
-  final int? reminderId;
-  final String title;
-  final String body;
-  final DateTime scheduledTime;
-  const User({
-    required this.id,
-    this.name,
-    this.gender,
-    this.weight,
-    required this.hour,
-    required this.minute,
-    required this.isActive,
-    this.reminderId,
-    required this.title,
-    required this.body,
-    required this.scheduledTime,
-  });
+  const User({required this.id, this.name, this.gender, this.weight});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -324,15 +136,6 @@ class User extends DataClass implements Insertable<User> {
     if (!nullToAbsent || weight != null) {
       map['weight'] = Variable<double>(weight);
     }
-    map['hour'] = Variable<int>(hour);
-    map['minute'] = Variable<int>(minute);
-    map['is_active'] = Variable<bool>(isActive);
-    if (!nullToAbsent || reminderId != null) {
-      map['reminder_id'] = Variable<int>(reminderId);
-    }
-    map['title'] = Variable<String>(title);
-    map['body'] = Variable<String>(body);
-    map['scheduled_time'] = Variable<DateTime>(scheduledTime);
     return map;
   }
 
@@ -346,15 +149,6 @@ class User extends DataClass implements Insertable<User> {
       weight: weight == null && nullToAbsent
           ? const Value.absent()
           : Value(weight),
-      hour: Value(hour),
-      minute: Value(minute),
-      isActive: Value(isActive),
-      reminderId: reminderId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(reminderId),
-      title: Value(title),
-      body: Value(body),
-      scheduledTime: Value(scheduledTime),
     );
   }
 
@@ -368,13 +162,6 @@ class User extends DataClass implements Insertable<User> {
       name: serializer.fromJson<String?>(json['name']),
       gender: serializer.fromJson<String?>(json['gender']),
       weight: serializer.fromJson<double?>(json['weight']),
-      hour: serializer.fromJson<int>(json['hour']),
-      minute: serializer.fromJson<int>(json['minute']),
-      isActive: serializer.fromJson<bool>(json['isActive']),
-      reminderId: serializer.fromJson<int?>(json['reminderId']),
-      title: serializer.fromJson<String>(json['title']),
-      body: serializer.fromJson<String>(json['body']),
-      scheduledTime: serializer.fromJson<DateTime>(json['scheduledTime']),
     );
   }
   @override
@@ -385,13 +172,6 @@ class User extends DataClass implements Insertable<User> {
       'name': serializer.toJson<String?>(name),
       'gender': serializer.toJson<String?>(gender),
       'weight': serializer.toJson<double?>(weight),
-      'hour': serializer.toJson<int>(hour),
-      'minute': serializer.toJson<int>(minute),
-      'isActive': serializer.toJson<bool>(isActive),
-      'reminderId': serializer.toJson<int?>(reminderId),
-      'title': serializer.toJson<String>(title),
-      'body': serializer.toJson<String>(body),
-      'scheduledTime': serializer.toJson<DateTime>(scheduledTime),
     };
   }
 
@@ -400,25 +180,11 @@ class User extends DataClass implements Insertable<User> {
     Value<String?> name = const Value.absent(),
     Value<String?> gender = const Value.absent(),
     Value<double?> weight = const Value.absent(),
-    int? hour,
-    int? minute,
-    bool? isActive,
-    Value<int?> reminderId = const Value.absent(),
-    String? title,
-    String? body,
-    DateTime? scheduledTime,
   }) => User(
     id: id ?? this.id,
     name: name.present ? name.value : this.name,
     gender: gender.present ? gender.value : this.gender,
     weight: weight.present ? weight.value : this.weight,
-    hour: hour ?? this.hour,
-    minute: minute ?? this.minute,
-    isActive: isActive ?? this.isActive,
-    reminderId: reminderId.present ? reminderId.value : this.reminderId,
-    title: title ?? this.title,
-    body: body ?? this.body,
-    scheduledTime: scheduledTime ?? this.scheduledTime,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -426,17 +192,6 @@ class User extends DataClass implements Insertable<User> {
       name: data.name.present ? data.name.value : this.name,
       gender: data.gender.present ? data.gender.value : this.gender,
       weight: data.weight.present ? data.weight.value : this.weight,
-      hour: data.hour.present ? data.hour.value : this.hour,
-      minute: data.minute.present ? data.minute.value : this.minute,
-      isActive: data.isActive.present ? data.isActive.value : this.isActive,
-      reminderId: data.reminderId.present
-          ? data.reminderId.value
-          : this.reminderId,
-      title: data.title.present ? data.title.value : this.title,
-      body: data.body.present ? data.body.value : this.body,
-      scheduledTime: data.scheduledTime.present
-          ? data.scheduledTime.value
-          : this.scheduledTime,
     );
   }
 
@@ -446,32 +201,13 @@ class User extends DataClass implements Insertable<User> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('gender: $gender, ')
-          ..write('weight: $weight, ')
-          ..write('hour: $hour, ')
-          ..write('minute: $minute, ')
-          ..write('isActive: $isActive, ')
-          ..write('reminderId: $reminderId, ')
-          ..write('title: $title, ')
-          ..write('body: $body, ')
-          ..write('scheduledTime: $scheduledTime')
+          ..write('weight: $weight')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    gender,
-    weight,
-    hour,
-    minute,
-    isActive,
-    reminderId,
-    title,
-    body,
-    scheduledTime,
-  );
+  int get hashCode => Object.hash(id, name, gender, weight);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -479,14 +215,7 @@ class User extends DataClass implements Insertable<User> {
           other.id == this.id &&
           other.name == this.name &&
           other.gender == this.gender &&
-          other.weight == this.weight &&
-          other.hour == this.hour &&
-          other.minute == this.minute &&
-          other.isActive == this.isActive &&
-          other.reminderId == this.reminderId &&
-          other.title == this.title &&
-          other.body == this.body &&
-          other.scheduledTime == this.scheduledTime);
+          other.weight == this.weight);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -494,68 +223,29 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String?> name;
   final Value<String?> gender;
   final Value<double?> weight;
-  final Value<int> hour;
-  final Value<int> minute;
-  final Value<bool> isActive;
-  final Value<int?> reminderId;
-  final Value<String> title;
-  final Value<String> body;
-  final Value<DateTime> scheduledTime;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.gender = const Value.absent(),
     this.weight = const Value.absent(),
-    this.hour = const Value.absent(),
-    this.minute = const Value.absent(),
-    this.isActive = const Value.absent(),
-    this.reminderId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.body = const Value.absent(),
-    this.scheduledTime = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.gender = const Value.absent(),
     this.weight = const Value.absent(),
-    required int hour,
-    required int minute,
-    this.isActive = const Value.absent(),
-    this.reminderId = const Value.absent(),
-    required String title,
-    required String body,
-    required DateTime scheduledTime,
-  }) : hour = Value(hour),
-       minute = Value(minute),
-       title = Value(title),
-       body = Value(body),
-       scheduledTime = Value(scheduledTime);
+  });
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? gender,
     Expression<double>? weight,
-    Expression<int>? hour,
-    Expression<int>? minute,
-    Expression<bool>? isActive,
-    Expression<int>? reminderId,
-    Expression<String>? title,
-    Expression<String>? body,
-    Expression<DateTime>? scheduledTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (gender != null) 'gender': gender,
       if (weight != null) 'weight': weight,
-      if (hour != null) 'hour': hour,
-      if (minute != null) 'minute': minute,
-      if (isActive != null) 'is_active': isActive,
-      if (reminderId != null) 'reminder_id': reminderId,
-      if (title != null) 'title': title,
-      if (body != null) 'body': body,
-      if (scheduledTime != null) 'scheduled_time': scheduledTime,
     });
   }
 
@@ -564,26 +254,12 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String?>? name,
     Value<String?>? gender,
     Value<double?>? weight,
-    Value<int>? hour,
-    Value<int>? minute,
-    Value<bool>? isActive,
-    Value<int?>? reminderId,
-    Value<String>? title,
-    Value<String>? body,
-    Value<DateTime>? scheduledTime,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       gender: gender ?? this.gender,
       weight: weight ?? this.weight,
-      hour: hour ?? this.hour,
-      minute: minute ?? this.minute,
-      isActive: isActive ?? this.isActive,
-      reminderId: reminderId ?? this.reminderId,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      scheduledTime: scheduledTime ?? this.scheduledTime,
     );
   }
 
@@ -602,27 +278,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (weight.present) {
       map['weight'] = Variable<double>(weight.value);
     }
-    if (hour.present) {
-      map['hour'] = Variable<int>(hour.value);
-    }
-    if (minute.present) {
-      map['minute'] = Variable<int>(minute.value);
-    }
-    if (isActive.present) {
-      map['is_active'] = Variable<bool>(isActive.value);
-    }
-    if (reminderId.present) {
-      map['reminder_id'] = Variable<int>(reminderId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (body.present) {
-      map['body'] = Variable<String>(body.value);
-    }
-    if (scheduledTime.present) {
-      map['scheduled_time'] = Variable<DateTime>(scheduledTime.value);
-    }
     return map;
   }
 
@@ -632,14 +287,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('gender: $gender, ')
-          ..write('weight: $weight, ')
-          ..write('hour: $hour, ')
-          ..write('minute: $minute, ')
-          ..write('isActive: $isActive, ')
-          ..write('reminderId: $reminderId, ')
-          ..write('title: $title, ')
-          ..write('body: $body, ')
-          ..write('scheduledTime: $scheduledTime')
+          ..write('weight: $weight')
           ..write(')'))
         .toString();
   }
@@ -1218,13 +866,6 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<String?> name,
       Value<String?> gender,
       Value<double?> weight,
-      required int hour,
-      required int minute,
-      Value<bool> isActive,
-      Value<int?> reminderId,
-      required String title,
-      required String body,
-      required DateTime scheduledTime,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -1232,13 +873,6 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String?> name,
       Value<String?> gender,
       Value<double?> weight,
-      Value<int> hour,
-      Value<int> minute,
-      Value<bool> isActive,
-      Value<int?> reminderId,
-      Value<String> title,
-      Value<String> body,
-      Value<DateTime> scheduledTime,
     });
 
 final class $$UsersTableReferences
@@ -1289,41 +923,6 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<double> get weight => $composableBuilder(
     column: $table.weight,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get hour => $composableBuilder(
-    column: $table.hour,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get minute => $composableBuilder(
-    column: $table.minute,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get reminderId => $composableBuilder(
-    column: $table.reminderId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get scheduledTime => $composableBuilder(
-    column: $table.scheduledTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1381,41 +980,6 @@ class $$UsersTableOrderingComposer
     column: $table.weight,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<int> get hour => $composableBuilder(
-    column: $table.hour,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get minute => $composableBuilder(
-    column: $table.minute,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get reminderId => $composableBuilder(
-    column: $table.reminderId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get scheduledTime => $composableBuilder(
-    column: $table.scheduledTime,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -1438,31 +1002,6 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<double> get weight =>
       $composableBuilder(column: $table.weight, builder: (column) => column);
-
-  GeneratedColumn<int> get hour =>
-      $composableBuilder(column: $table.hour, builder: (column) => column);
-
-  GeneratedColumn<int> get minute =>
-      $composableBuilder(column: $table.minute, builder: (column) => column);
-
-  GeneratedColumn<bool> get isActive =>
-      $composableBuilder(column: $table.isActive, builder: (column) => column);
-
-  GeneratedColumn<int> get reminderId => $composableBuilder(
-    column: $table.reminderId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get body =>
-      $composableBuilder(column: $table.body, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get scheduledTime => $composableBuilder(
-    column: $table.scheduledTime,
-    builder: (column) => column,
-  );
 
   Expression<T> remindersRefs<T extends Object>(
     Expression<T> Function($$RemindersTableAnnotationComposer a) f,
@@ -1522,25 +1061,11 @@ class $$UsersTableTableManager
                 Value<String?> name = const Value.absent(),
                 Value<String?> gender = const Value.absent(),
                 Value<double?> weight = const Value.absent(),
-                Value<int> hour = const Value.absent(),
-                Value<int> minute = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                Value<int?> reminderId = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String> body = const Value.absent(),
-                Value<DateTime> scheduledTime = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 name: name,
                 gender: gender,
                 weight: weight,
-                hour: hour,
-                minute: minute,
-                isActive: isActive,
-                reminderId: reminderId,
-                title: title,
-                body: body,
-                scheduledTime: scheduledTime,
               ),
           createCompanionCallback:
               ({
@@ -1548,25 +1073,11 @@ class $$UsersTableTableManager
                 Value<String?> name = const Value.absent(),
                 Value<String?> gender = const Value.absent(),
                 Value<double?> weight = const Value.absent(),
-                required int hour,
-                required int minute,
-                Value<bool> isActive = const Value.absent(),
-                Value<int?> reminderId = const Value.absent(),
-                required String title,
-                required String body,
-                required DateTime scheduledTime,
               }) => UsersCompanion.insert(
                 id: id,
                 name: name,
                 gender: gender,
                 weight: weight,
-                hour: hour,
-                minute: minute,
-                isActive: isActive,
-                reminderId: reminderId,
-                title: title,
-                body: body,
-                scheduledTime: scheduledTime,
               ),
           withReferenceMapper: (p0) => p0
               .map(

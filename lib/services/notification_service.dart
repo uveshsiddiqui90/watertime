@@ -214,7 +214,7 @@ static Future<void> showTestNotification() async {
     return notifications;
   }
 
-static Future<void> deleteAllNotifications() async {
+  static Future<void> deleteAllNotifications() async {
   
   try {
     // Cancel all pending notifications
@@ -229,7 +229,36 @@ static Future<void> deleteAllNotifications() async {
     throw Exception('Failed to delete notifications: $e');
   }
 }
-  
 
+  
+ static void backgroundCallback() async {
+    final plugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    await plugin.initialize(initializationSettings);
+
+    final androidDetails = AndroidNotificationDetails(
+      'water_channel_v2',
+      'Water Reminders',
+      importance: Importance.max,
+      priority: Priority.high,
+      sound: const RawResourceAndroidNotificationSound('alarm'),
+      playSound: true,
+      visibility: NotificationVisibility.public,
+      additionalFlags: Int32List.fromList(const <int>[4]),
+      fullScreenIntent: true,
+      enableVibration: true,
+    );
+
+    await plugin.show(
+      0,
+      '💧 Water Reminder',
+      'Time to drink water! Stay hydrated 💧',
+      NotificationDetails(android: androidDetails),
+    );
+  }
 
 }

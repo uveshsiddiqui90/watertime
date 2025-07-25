@@ -1,9 +1,22 @@
 class AppString {
 
 //BoardingView....
- static const String welcomeMessage= 'Welcome to WaterTime';
+ static const String welcomeMessage= ' Welcome to';
+ static const String watertime= 'Water Time';
  static const String sipBysipReachyourDailyGoal = 'Sip by Sip, Reach Your Daily Goal! 🎯';
  static const String getStarted = 'Get Started';
+ static const String entername = 'Enter your Beautiful Name';
+
+ //GenderSelectionView....
+ static const String selectYourGender = 'Select Your Gender';
+ static const String male =  'Male';
+ static const String female =  'Female';
+
+ //WeightView....
+ static const String selectYourWeight = 'Select Your \nWeight';
+
+ //common strings
+ static const String next = 'Next';
 
 
 
