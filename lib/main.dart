@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget
          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0),),
          child: GetMaterialApp(
            title: 'Flutter Demo',
-           initialRoute: AppRoutes.HOME,  //     ,  
+           initialRoute: AppRoutes.HOME, 
            getPages: AppPages.routes,
            theme: ThemeData(
            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
