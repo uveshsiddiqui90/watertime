@@ -3,18 +3,27 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/database/app_database.dart';
+import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/services/notifications/notification_details.dart';
 
-
-class NotificationService 
+  class NotificationService 
 {
   static final _notifications = FlutterLocalNotificationsPlugin();
+  static Homecontroller homecontroller = Get.put(Homecontroller());
 
   final AppDatabase _database;
 
   NotificationService(this._database);
+
+  final ios = DarwinInitializationSettings(
+  onDidReceiveLocalNotification: (id, title, body, payload) async {},
+);
+
 
 
     static Future<void> initialize() async {
@@ -24,9 +33,24 @@ class NotificationService
     
     await _notifications.initialize(
       settings,
-      onDidReceiveNotificationResponse: (response) {
-        // Handle notification tap
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        final actionId = response.actionId;
+       print('Notification tapped: ${response.id}, action: $actionId');
+       print('Payload: ${response.payload}');
+
+  if (actionId == null || actionId.isEmpty) {
+    print("TAPPED ON NOTIFICATION BODY");
+  } else if (response.actionId == 'done') {
+    print("✅ DONE ACTION PRESSED");
+  } else if (response.actionId == 'skip') {
+    print("❌ SKIP ACTION PRESSED");
+  }
+
+ await _notifications.cancel(response.id ?? 0);
+       
+        
       },
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
     _createNotificationChannel();
   }
@@ -74,6 +98,18 @@ if (scheduledTime.isBefore(now)) {
           additionalFlags: Int32List.fromList(<int>[4]),
           fullScreenIntent: true,
           enableVibration: true,
+          ongoing: true,
+           actions: <AndroidNotificationAction>[
+            AndroidNotificationAction('done', '✅ Done',
+            showsUserInterface: true,
+            cancelNotification: true,
+            
+            ),
+            AndroidNotificationAction('skip', '❌ Skip',
+            showsUserInterface: true,
+            cancelNotification: true,
+            ),
+       ],
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -251,6 +287,7 @@ static Future<void> showTestNotification() async {
       additionalFlags: Int32List.fromList(const <int>[4]),
       fullScreenIntent: true,
       enableVibration: true,
+      ongoing: true,
     );
 
     await plugin.show(
@@ -261,4 +298,10 @@ static Future<void> showTestNotification() async {
     );
   }
 
+}
+
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) {
+  // Required for background response
+  debugPrint('Notification (background) tapped: ${response.actionId}');
 }

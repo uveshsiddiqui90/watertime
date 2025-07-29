@@ -20,7 +20,7 @@ class HomeView extends StatelessWidget
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) 
     {
-      waterController.updateConsumedAmount(180.0);
+      waterController.updateConsumedAmount(homecontroller.waterConsumed.value.toDouble());
       waterController.updateTargetAmount(homecontroller.targetAmount.value.toDouble());
     });
     return Scaffold(

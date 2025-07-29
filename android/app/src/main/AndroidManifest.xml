@@ -41,11 +41,12 @@
     <!-- flutter_local_notifications -->
     <receiver
       android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
-      android:exported="false" />
+      android:exported="true" />
 
     <receiver
       android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
-      android:exported="false">
+      android:enabled="true"
+      android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
       </intent-filter>
