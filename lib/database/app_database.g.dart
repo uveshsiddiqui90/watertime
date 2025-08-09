@@ -48,8 +48,51 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _consumedAmountMeta = const VerificationMeta(
+    'consumedAmount',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, gender, weight];
+  late final GeneratedColumn<double> consumedAmount = GeneratedColumn<double>(
+    'consumed_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: Constant(0.0),
+  );
+  static const VerificationMeta _lastUpdatedDateMeta = const VerificationMeta(
+    'lastUpdatedDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUpdatedDate =
+      GeneratedColumn<DateTime>(
+        'last_updated_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _historyJsonMeta = const VerificationMeta(
+    'historyJson',
+  );
+  @override
+  late final GeneratedColumn<String> historyJson = GeneratedColumn<String>(
+    'history_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    gender,
+    weight,
+    consumedAmount,
+    lastUpdatedDate,
+    historyJson,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -83,6 +126,33 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
       );
     }
+    if (data.containsKey('consumed_amount')) {
+      context.handle(
+        _consumedAmountMeta,
+        consumedAmount.isAcceptableOrUnknown(
+          data['consumed_amount']!,
+          _consumedAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_updated_date')) {
+      context.handle(
+        _lastUpdatedDateMeta,
+        lastUpdatedDate.isAcceptableOrUnknown(
+          data['last_updated_date']!,
+          _lastUpdatedDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('history_json')) {
+      context.handle(
+        _historyJsonMeta,
+        historyJson.isAcceptableOrUnknown(
+          data['history_json']!,
+          _historyJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -108,6 +178,18 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.double,
         data['${effectivePrefix}weight'],
       ),
+      consumedAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}consumed_amount'],
+      )!,
+      lastUpdatedDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_updated_date'],
+      ),
+      historyJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}history_json'],
+      ),
     );
   }
 
@@ -122,7 +204,18 @@ class User extends DataClass implements Insertable<User> {
   final String? name;
   final String? gender;
   final double? weight;
-  const User({required this.id, this.name, this.gender, this.weight});
+  final double consumedAmount;
+  final DateTime? lastUpdatedDate;
+  final String? historyJson;
+  const User({
+    required this.id,
+    this.name,
+    this.gender,
+    this.weight,
+    required this.consumedAmount,
+    this.lastUpdatedDate,
+    this.historyJson,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -135,6 +228,13 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || weight != null) {
       map['weight'] = Variable<double>(weight);
+    }
+    map['consumed_amount'] = Variable<double>(consumedAmount);
+    if (!nullToAbsent || lastUpdatedDate != null) {
+      map['last_updated_date'] = Variable<DateTime>(lastUpdatedDate);
+    }
+    if (!nullToAbsent || historyJson != null) {
+      map['history_json'] = Variable<String>(historyJson);
     }
     return map;
   }
@@ -149,6 +249,13 @@ class User extends DataClass implements Insertable<User> {
       weight: weight == null && nullToAbsent
           ? const Value.absent()
           : Value(weight),
+      consumedAmount: Value(consumedAmount),
+      lastUpdatedDate: lastUpdatedDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUpdatedDate),
+      historyJson: historyJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(historyJson),
     );
   }
 
@@ -162,6 +269,9 @@ class User extends DataClass implements Insertable<User> {
       name: serializer.fromJson<String?>(json['name']),
       gender: serializer.fromJson<String?>(json['gender']),
       weight: serializer.fromJson<double?>(json['weight']),
+      consumedAmount: serializer.fromJson<double>(json['consumedAmount']),
+      lastUpdatedDate: serializer.fromJson<DateTime?>(json['lastUpdatedDate']),
+      historyJson: serializer.fromJson<String?>(json['historyJson']),
     );
   }
   @override
@@ -172,6 +282,9 @@ class User extends DataClass implements Insertable<User> {
       'name': serializer.toJson<String?>(name),
       'gender': serializer.toJson<String?>(gender),
       'weight': serializer.toJson<double?>(weight),
+      'consumedAmount': serializer.toJson<double>(consumedAmount),
+      'lastUpdatedDate': serializer.toJson<DateTime?>(lastUpdatedDate),
+      'historyJson': serializer.toJson<String?>(historyJson),
     };
   }
 
@@ -180,11 +293,19 @@ class User extends DataClass implements Insertable<User> {
     Value<String?> name = const Value.absent(),
     Value<String?> gender = const Value.absent(),
     Value<double?> weight = const Value.absent(),
+    double? consumedAmount,
+    Value<DateTime?> lastUpdatedDate = const Value.absent(),
+    Value<String?> historyJson = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     name: name.present ? name.value : this.name,
     gender: gender.present ? gender.value : this.gender,
     weight: weight.present ? weight.value : this.weight,
+    consumedAmount: consumedAmount ?? this.consumedAmount,
+    lastUpdatedDate: lastUpdatedDate.present
+        ? lastUpdatedDate.value
+        : this.lastUpdatedDate,
+    historyJson: historyJson.present ? historyJson.value : this.historyJson,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -192,6 +313,15 @@ class User extends DataClass implements Insertable<User> {
       name: data.name.present ? data.name.value : this.name,
       gender: data.gender.present ? data.gender.value : this.gender,
       weight: data.weight.present ? data.weight.value : this.weight,
+      consumedAmount: data.consumedAmount.present
+          ? data.consumedAmount.value
+          : this.consumedAmount,
+      lastUpdatedDate: data.lastUpdatedDate.present
+          ? data.lastUpdatedDate.value
+          : this.lastUpdatedDate,
+      historyJson: data.historyJson.present
+          ? data.historyJson.value
+          : this.historyJson,
     );
   }
 
@@ -201,13 +331,24 @@ class User extends DataClass implements Insertable<User> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('gender: $gender, ')
-          ..write('weight: $weight')
+          ..write('weight: $weight, ')
+          ..write('consumedAmount: $consumedAmount, ')
+          ..write('lastUpdatedDate: $lastUpdatedDate, ')
+          ..write('historyJson: $historyJson')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, gender, weight);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    gender,
+    weight,
+    consumedAmount,
+    lastUpdatedDate,
+    historyJson,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -215,7 +356,10 @@ class User extends DataClass implements Insertable<User> {
           other.id == this.id &&
           other.name == this.name &&
           other.gender == this.gender &&
-          other.weight == this.weight);
+          other.weight == this.weight &&
+          other.consumedAmount == this.consumedAmount &&
+          other.lastUpdatedDate == this.lastUpdatedDate &&
+          other.historyJson == this.historyJson);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -223,29 +367,44 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String?> name;
   final Value<String?> gender;
   final Value<double?> weight;
+  final Value<double> consumedAmount;
+  final Value<DateTime?> lastUpdatedDate;
+  final Value<String?> historyJson;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.gender = const Value.absent(),
     this.weight = const Value.absent(),
+    this.consumedAmount = const Value.absent(),
+    this.lastUpdatedDate = const Value.absent(),
+    this.historyJson = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.gender = const Value.absent(),
     this.weight = const Value.absent(),
+    this.consumedAmount = const Value.absent(),
+    this.lastUpdatedDate = const Value.absent(),
+    this.historyJson = const Value.absent(),
   });
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? gender,
     Expression<double>? weight,
+    Expression<double>? consumedAmount,
+    Expression<DateTime>? lastUpdatedDate,
+    Expression<String>? historyJson,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (gender != null) 'gender': gender,
       if (weight != null) 'weight': weight,
+      if (consumedAmount != null) 'consumed_amount': consumedAmount,
+      if (lastUpdatedDate != null) 'last_updated_date': lastUpdatedDate,
+      if (historyJson != null) 'history_json': historyJson,
     });
   }
 
@@ -254,12 +413,18 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String?>? name,
     Value<String?>? gender,
     Value<double?>? weight,
+    Value<double>? consumedAmount,
+    Value<DateTime?>? lastUpdatedDate,
+    Value<String?>? historyJson,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       gender: gender ?? this.gender,
       weight: weight ?? this.weight,
+      consumedAmount: consumedAmount ?? this.consumedAmount,
+      lastUpdatedDate: lastUpdatedDate ?? this.lastUpdatedDate,
+      historyJson: historyJson ?? this.historyJson,
     );
   }
 
@@ -278,6 +443,15 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (weight.present) {
       map['weight'] = Variable<double>(weight.value);
     }
+    if (consumedAmount.present) {
+      map['consumed_amount'] = Variable<double>(consumedAmount.value);
+    }
+    if (lastUpdatedDate.present) {
+      map['last_updated_date'] = Variable<DateTime>(lastUpdatedDate.value);
+    }
+    if (historyJson.present) {
+      map['history_json'] = Variable<String>(historyJson.value);
+    }
     return map;
   }
 
@@ -287,7 +461,10 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('gender: $gender, ')
-          ..write('weight: $weight')
+          ..write('weight: $weight, ')
+          ..write('consumedAmount: $consumedAmount, ')
+          ..write('lastUpdatedDate: $lastUpdatedDate, ')
+          ..write('historyJson: $historyJson')
           ..write(')'))
         .toString();
   }
@@ -866,6 +1043,9 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<String?> name,
       Value<String?> gender,
       Value<double?> weight,
+      Value<double> consumedAmount,
+      Value<DateTime?> lastUpdatedDate,
+      Value<String?> historyJson,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -873,6 +1053,9 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String?> name,
       Value<String?> gender,
       Value<double?> weight,
+      Value<double> consumedAmount,
+      Value<DateTime?> lastUpdatedDate,
+      Value<String?> historyJson,
     });
 
 final class $$UsersTableReferences
@@ -923,6 +1106,21 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<double> get weight => $composableBuilder(
     column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get consumedAmount => $composableBuilder(
+    column: $table.consumedAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUpdatedDate => $composableBuilder(
+    column: $table.lastUpdatedDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get historyJson => $composableBuilder(
+    column: $table.historyJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -980,6 +1178,21 @@ class $$UsersTableOrderingComposer
     column: $table.weight,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get consumedAmount => $composableBuilder(
+    column: $table.consumedAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUpdatedDate => $composableBuilder(
+    column: $table.lastUpdatedDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get historyJson => $composableBuilder(
+    column: $table.historyJson,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -1002,6 +1215,21 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<double> get weight =>
       $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<double> get consumedAmount => $composableBuilder(
+    column: $table.consumedAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastUpdatedDate => $composableBuilder(
+    column: $table.lastUpdatedDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get historyJson => $composableBuilder(
+    column: $table.historyJson,
+    builder: (column) => column,
+  );
 
   Expression<T> remindersRefs<T extends Object>(
     Expression<T> Function($$RemindersTableAnnotationComposer a) f,
@@ -1061,11 +1289,17 @@ class $$UsersTableTableManager
                 Value<String?> name = const Value.absent(),
                 Value<String?> gender = const Value.absent(),
                 Value<double?> weight = const Value.absent(),
+                Value<double> consumedAmount = const Value.absent(),
+                Value<DateTime?> lastUpdatedDate = const Value.absent(),
+                Value<String?> historyJson = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 name: name,
                 gender: gender,
                 weight: weight,
+                consumedAmount: consumedAmount,
+                lastUpdatedDate: lastUpdatedDate,
+                historyJson: historyJson,
               ),
           createCompanionCallback:
               ({
@@ -1073,11 +1307,17 @@ class $$UsersTableTableManager
                 Value<String?> name = const Value.absent(),
                 Value<String?> gender = const Value.absent(),
                 Value<double?> weight = const Value.absent(),
+                Value<double> consumedAmount = const Value.absent(),
+                Value<DateTime?> lastUpdatedDate = const Value.absent(),
+                Value<String?> historyJson = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 name: name,
                 gender: gender,
                 weight: weight,
+                consumedAmount: consumedAmount,
+                lastUpdatedDate: lastUpdatedDate,
+                historyJson: historyJson,
               ),
           withReferenceMapper: (p0) => p0
               .map(

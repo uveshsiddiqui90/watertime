@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -12,16 +13,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 15;
 
 
 
-  Future<int> insertUser(String name, {String? gender, double? weight}) {
+  Future<int> insertUser(String name, {String? gender, double? weight, double consumedAmount = 0.0,}) {
   return into(users).insert(
     UsersCompanion(
       name: Value(name),
       gender: Value(gender),
       weight: Value(weight),
+      consumedAmount: Value(0.0),
     ),
   );
 }
@@ -51,6 +53,18 @@ Future<List<User>> getUsersByWeightRange(double min, double max) {
     );
   }
 
+Future<void> updateConsumedAmount(double amount, {bool reset = false}) async {
+  final user = await getLatestUser();
+  if (user != null) {
+    await (update(users)..where((u) => u.id.equals(user.id)))
+        .write(UsersCompanion(
+          consumedAmount: Value(reset ? amount : (user.consumedAmount ?? 0) + amount),
+        ));
+  }
+}
+
+
+
 
   Future<List<User>> getAllUsers() => select(users).get();
 
@@ -68,7 +82,8 @@ Future<int> insertReminder(RemindersCompanion reminder) {
 }
 
 // Get reminders for user
-Future<List<Reminder>> getRemindersForUser(int userId) {
+Future<List<Reminder>> getRemindersForUser(int userId) 
+{
   return (select(reminders)..where((r) => r.userId.equals(userId))).get();
 }
 
@@ -87,14 +102,60 @@ Future<List<Reminder>> getAllReminders() {
 }
 
 
+Future<void> addDailyHistory(double consumed) async 
+{
+  final user = await getLatestUser();
+  if (user == null) return;
+
+  // Parse old history
+  final oldHistory = List<Map<String, dynamic>>.from(
+    jsonDecode(user.historyJson ?? '[]'),
+  );
+
+  // Add today's entry
+  oldHistory.add({
+    "date": DateTime.now().toIso8601String(),
+    "consumedAmount": consumed,
+  });
+
+  // Keep last 7 days only
+  while (oldHistory.length > 7) {
+    oldHistory.removeAt(0);
+  }
+
+  // Save back to DB
+  await (update(users)..where((u) => u.id.equals(user.id))).write(
+    UsersCompanion(historyJson: Value(jsonEncode(oldHistory))),
+  );
+}
+
+Future<List<Map<String, dynamic>>> getLast7DaysHistory() async {
+  final user = await getLatestUser();
+  if (user == null) return [];
+
+  final history = List<Map<String, dynamic>>.from(
+    jsonDecode(user.historyJson ?? '[]'),
+  );
+
+  return history;
+}
+
 
 @override
 MigrationStrategy get migration => MigrationStrategy(
-  onCreate: (m) => m.createAll(),
+  onCreate: (m) async {
+    await m.createAll();
+    // Purane null crash se bachne ke liye default value set
+    await customStatement("UPDATE users SET history_json = '[]'");
+  },
   onUpgrade: (m, from, to) async {
-    await m.createAll();  // Important for dev/testing
+    await m.createAll();
+    await customStatement("UPDATE users SET history_json = '[]'");
   },
 );
+
+
+
 
 
 

@@ -9,6 +9,7 @@ import 'package:watertime/constants/waterprogress_indicator/waterprogress_contro
 import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
 import 'package:watertime/services/notification_service.dart';
+import 'package:watertime/services/reset_service/resetservice.dart';
 
 class HomeView extends StatelessWidget 
 {
@@ -36,7 +37,8 @@ class HomeView extends StatelessWidget
                 top: 20.h,
                 child: InkWell(
                   onTap: () {
-                    Get.toNamed(AppRoutes.SETTING); // Navigate to settings page
+                    //Get.toNamed(AppRoutes.SETTING); // Navigate to settings page
+                    Get.toNamed(AppRoutes.USERHISTORY); // Navigate to user history page
                   },
                   child: Icon(Icons.settings, size: 30, color: Colors.blueAccent,))),
               Column(
@@ -116,6 +118,7 @@ class HomeView extends StatelessWidget
                      
                      
                     }),
+
                     SizedBox(height: 20.h),
 
                     Expanded(

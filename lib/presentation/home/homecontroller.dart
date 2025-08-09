@@ -23,8 +23,10 @@ class Homecontroller extends GetxController
  RxInt targetAmount = 0.obs;
  var db = AppDatabase();
  RxString userName = ''.obs;
- RxInt waterConsumed = 0.obs;
+ RxDouble waterConsumed = 0.0.obs;
+ 
 WaterController waterController = Get.put(WaterController());
+
 
   @override
   void onInit() {
@@ -34,6 +36,7 @@ WaterController waterController = Get.put(WaterController());
     getAllRemindersfromDatabase(); 
     getUserData();
      // Update next reminder every minute
+     getConsumedAmount();
      
     Timer.periodic(Duration(minutes: 1), (timer) {
     update(); // Triggers UI rebuild
@@ -278,11 +281,10 @@ String formatTime(TimeOfDay? time) {
  RxDouble totalWater = 2.0.obs;
 
  void addWater(double amount) {
-    totalWater.value += amount;
-    if (totalWater.value > 3.0) {
-      totalWater.value = 3.0;
-    }
-  }
+    waterConsumed.value += amount;
+    waterController.updateConsumedAmount(waterConsumed.value);
+    print('Water added: $amount ml, Total: ${waterConsumed.value} ml');
+     }
 
 void getAllNotificationDetails() async {
     final notifications = await NotificationService.getAllScheduledNotifications();
@@ -405,8 +407,17 @@ RxString selectedGender = ''.obs;
 void waterConsumedToday(String waterIntake) async {
   
   double totalConsumed = double.parse(waterIntake); 
-  print('Total water consumed today: $totalConsumed ml');}
+  print('Total water consumed today: $totalConsumed ml');
+  }
 
 
 
+Future<double> getConsumedAmount() async {
+  final user = await db.getLatestUser();
+
+  print('Consumed Amount: ${user?.consumedAmount}');
+  waterConsumed.value = user?.consumedAmount ?? 0.0;
+  waterController.updateConsumedAmount(waterConsumed.value);
+  return user?.consumedAmount ?? 0.0;
+}
 }

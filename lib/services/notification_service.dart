@@ -16,12 +16,14 @@ import 'package:watertime/services/notifications/notification_details.dart';
   static final _notifications = FlutterLocalNotificationsPlugin();
   static Homecontroller homecontroller = Get.put(Homecontroller());
 
-  final AppDatabase _database;
+  final AppDatabase database;
 
-  NotificationService(this._database);
+  NotificationService(this.database);
 
   final ios = DarwinInitializationSettings(
-  onDidReceiveLocalNotification: (id, title, body, payload) async {},
+  onDidReceiveLocalNotification: ( id, title, body, payload) async {
+
+  },
 );
 
 
@@ -30,26 +32,44 @@ import 'package:watertime/services/notifications/notification_details.dart';
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     const settings = InitializationSettings(android: android, iOS: ios);
+    var db = AppDatabase();
     
     await _notifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        final actionId = response.actionId;
-       print('Notification tapped: ${response.id}, action: $actionId');
-       print('Payload: ${response.payload}');
+
+  final actionId = response.actionId;
+  final payload = response.payload;
+
+  print('Notification tapped: ${response.id}, action: $actionId');
+  print('Payload: $payload');
 
   if (actionId == null || actionId.isEmpty) {
     print("TAPPED ON NOTIFICATION BODY");
-  } else if (response.actionId == 'done') {
+  } else if (actionId == 'done') {
     print("✅ DONE ACTION PRESSED");
-  } else if (response.actionId == 'skip') {
+
+    try {
+      final data = jsonDecode(payload ?? '{}');
+      final waterML = int.tryParse(data['water_ml'] ?? '0') ?? 0;
+      print('Parsed waterML: $waterML');
+
+      if (waterML > 0) {
+        // Add this waterML to total consumed
+        final  homeController = Get.find<Homecontroller>();
+        homeController.addWater(waterML.toDouble()); // You should have this function
+        db.updateConsumedAmount(waterML.toDouble());
+        print('✅ Added $waterML ml to progress');
+      }
+    } catch (e) {
+      print('❌ Error parsing payload: $e');
+    }
+  } else if (actionId == 'skip') {
     print("❌ SKIP ACTION PRESSED");
   }
 
- await _notifications.cancel(response.id ?? 0);
-       
-        
-      },
+  await _notifications.cancel(response.id ?? 0);
+},
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
     _createNotificationChannel();
@@ -85,6 +105,8 @@ if (scheduledTime.isBefore(now)) {
       scheduledTime,
       payload: jsonEncode({ // Important: Set proper payload
       'scheduled_time': scheduledTime.millisecondsSinceEpoch,
+      'water_ml': amount,
+      'reminder_id': id,
     }),
         NotificationDetails(
         android : AndroidNotificationDetails(

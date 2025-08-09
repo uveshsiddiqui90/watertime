@@ -14,6 +14,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:watertime/services/reset_service/resetservice.dart';
 
 
 void callback() {
@@ -32,7 +33,8 @@ void main() async
   Get.put<AppDatabase>(db);
  // MyApp.deleteDbFile(); // Delete old DB file if exists
  MyApp.rescheduleAllNotifications();
-  runApp(MyApp());
+ ResetService.scheduleMidnightReset();
+ runApp(MyApp());
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
@@ -41,7 +43,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  Flutter
 class MyApp extends StatelessWidget 
 {
    MyApp({super.key});
- var db = AppDatabase(); // Database instance
+ static final db = AppDatabase(); // Database instance
 
   // This widget is the root of your application.
   @override
@@ -70,7 +72,17 @@ class MyApp extends StatelessWidget
     
   }
 
-  static deleteDbFile() async {
+  static Future<void> ensureUserExists() async {
+  final user = await db.getLatestUser();
+  if (user == null) {
+    await db.insertUser("Test User", gender: "Male", weight: 70.0,consumedAmount: 200.0);
+  }else {
+    print("User already exists: ${user.name}");
+  }
+}
+
+  static deleteDbFile() async 
+  {
   final dir = await getApplicationDocumentsDirectory();
   final dbFile = File(p.join(dir.path, 'app.sqlite'));
   if (await dbFile.exists()) {
@@ -100,6 +112,27 @@ static Future<void> rescheduleAllNotifications() async {
   }
 
   print("🔁 All reminders rescheduled from DB");
+}
+
+static resetConsumedAmountTask() async {
+  final db = AppDatabase();
+  await db.updateConsumedAmount(0.0);
+  print("✅ Consumed amount reset at midnight");
+}
+
+
+static scheduleMidnightReset() {
+  final now = DateTime.now();
+  final midnight = DateTime(now.year, now.month, now.day + 1); // next 12:00 AM
+
+  AndroidAlarmManager.oneShotAt(
+      midnight,
+    0, // unique id
+    resetConsumedAmountTask,
+    exact: true,
+    wakeup: true,
+    rescheduleOnReboot: true,
+  );
 }
 
 

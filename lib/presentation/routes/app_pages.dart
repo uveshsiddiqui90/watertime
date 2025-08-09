@@ -7,6 +7,8 @@ import 'package:watertime/presentation/gender_selection/genderselection_binding.
 import 'package:watertime/presentation/gender_selection/genderselection_view.dart';
 import 'package:watertime/presentation/home/homebinding.dart';
 import 'package:watertime/presentation/home/homeview.dart';
+import 'package:watertime/presentation/user_history/userhistory_binding.dart';
+import 'package:watertime/presentation/user_history/userhistory_view.dart';
 import 'package:watertime/settings/setting.binding.dart';
 import 'package:watertime/settings/setting_view.dart';
 import '../weight_measure/weight_binding.dart';
@@ -43,8 +45,13 @@ class AppPages {
       name: AppRoutes.SETTING,
       page: () =>  SettingView(),
       binding: SettingBinding(), // ✨ This is where you link the binding!
+    ),
+    GetPage(
+      name: AppRoutes.USERHISTORY,
+      page: () =>  UserhistoryView(),
+      binding: UserhistoryBinding(), // ✨ This is where you link the binding!
     )
-    // ... other routes
+    
   ];
 }
 
@@ -54,6 +61,7 @@ class AppRoutes { // Route names define karne ke liye
     static const WEIGHT = '/weight';
     static const ACTIVITY = '/activity';
     static const HOME = '/home';
-    static const SETTING = '/setting'; // Duplicate route, consider removing or renaming
+    static const SETTING = '/setting'; 
+    static const USERHISTORY = '/userhistory';
     
 }
