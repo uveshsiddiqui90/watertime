@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:watertime/database/app_database.dart';
@@ -28,27 +29,39 @@ class UserhistoryView extends StatelessWidget {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
           final user = snapshot.data!;
-          final List<dynamic> history = jsonDecode(user.historyJson ?? '[]');
 
+           List<dynamic> history = jsonDecode(user.historyJson ?? '[]');
+          
           if (history.isEmpty) {
             return const Center(child: Text("No history found"));
           }
 
-          return ListView.builder(
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              final item = history[index];
-              final date = DateTime.parse(item["date"]);
-              final amount = item["amount"];
-
-              return ListTile(
-                leading: CircleAvatar(
-                  child: Text(getDayName(date)),
-                ),
-                title: Text("${getFormattedDate(date)}"),
-                trailing: Text("$amount ml"),
-              );
-            },
+          return Padding(
+            padding:  EdgeInsets.symmetric(vertical: 5.h),
+            child: ListView.builder(
+              itemCount: history.length,
+              itemBuilder: (context, index) {
+                final item = history[index];
+                final date = DateTime.parse(item["date"]);
+                final amount = item["consumedAmount"];
+               
+            
+                return Card(
+                   margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                   elevation: 10,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Text(getDayName(date)),
+                    ),
+                    title: Text("${getFormattedDate(date)}"),
+                    trailing: Text("${amount % 1 == 0 ? amount.toInt() : amount} ml"),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

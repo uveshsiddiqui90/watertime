@@ -3,6 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watertime/constants/theme.dart';
 import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/boarding/boarding_view.dart';
 import 'package:watertime/presentation/home/homeview.dart';
@@ -24,8 +26,11 @@ void callback() {
 void main() async 
 {
   WidgetsFlutterBinding.ensureInitialized();
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+  int step = prefs.getInt('onboardingStep') ?? 1;
   await AndroidAlarmManager.initialize();
   tz.initializeTimeZones();
+
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata')); 
   await NotificationService.requestPermissions();
   await NotificationService.initialize();
@@ -59,13 +64,15 @@ class MyApp extends StatelessWidget
          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0),),
          child: GetMaterialApp(
            title: 'Flutter Demo',
-           initialRoute: AppRoutes.HOME, 
+           initialRoute: AppRoutes.BOARDING, 
            getPages: AppPages.routes,
-           theme: ThemeData(
-           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          ),
+          //  theme: ThemeData(
+          //  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          // ),
+          theme: waterTheme,
           debugShowCheckedModeBanner: false,
-          home: HomeView()  
+          home: BoardingView()  
+          
        ),
        );
       });
@@ -136,5 +143,19 @@ static scheduleMidnightReset() {
 }
 
 
+static Future<void> forceMidnightTest() async {
+  final db = AppDatabase();
+
+  // ✅ Save "current" consumed amount into history (pretend it's yesterday)
+  final user = await db.getLatestUser();
+  if (user != null) {
+    await db.addDailyHistory(user.consumedAmount ?? 0.0);
+  }
+
+  // ✅ Reset consumed amount
+  await db.updateConsumedAmount(0.0, reset: true);
+
+  print("🚀 Force midnight test done: History updated & amount reset");
+}
 
 }

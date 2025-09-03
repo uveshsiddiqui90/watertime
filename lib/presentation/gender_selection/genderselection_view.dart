@@ -108,7 +108,7 @@ class GenderselectionView extends GetView<GenderselectionController> {
                     SizedBox(height: 10.h),
                      Row(
               children: [
-                InkWell(
+                GestureDetector(
                   onTap: (){
                     controller.isMaleSelected.value = false;
                     controller.isFemaleSelected.value = true;

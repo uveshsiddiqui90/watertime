@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -14,7 +15,7 @@ class SettingView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Settings'),
+        title: Text('Edit Profile'),
         centerTitle: true,
       ),
       body: Padding(
@@ -27,10 +28,11 @@ class SettingView extends StatelessWidget {
               controller: settingController.nameTxt.value,
               decoration: InputDecoration(
                 labelText: 'Name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                prefixIcon: Icon(Icons.person_2_outlined),
               ),
-
             ),
             SizedBox(height: 16),
 
@@ -48,14 +50,16 @@ class SettingView extends StatelessWidget {
                            //  enabled: false,
              decoration: InputDecoration(
                labelText: 'Weight (kg)',
-               border: OutlineInputBorder(),
-               prefixIcon: Icon(Icons.monitor_weight),
+                prefixIcon: Icon(Icons.fitness_center_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                
                            
              ),
                            ),
             SizedBox(height: 20.h),
-
-            /// 🚻 Gender Selection
+  /// 🚻 Gender Selection
             Obx(() => Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -118,7 +122,8 @@ class SettingView extends StatelessWidget {
             ]  ),
                 
               ],)),
-                
+
+
                 SizedBox(height: 24),
              
 

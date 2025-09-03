@@ -8,13 +8,13 @@ import 'package:watertime/constants/waterprogress_indicator/water_progress.dart'
 import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
-import 'package:watertime/services/notification_service.dart';
-import 'package:watertime/services/reset_service/resetservice.dart';
 
 class HomeView extends StatelessWidget 
 {
   final Homecontroller homecontroller = Get.put(Homecontroller());
   final WaterController waterController = Get.put(WaterController());
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   HomeView({super.key});
 
   @override
@@ -25,6 +25,67 @@ class HomeView extends StatelessWidget
       waterController.updateTargetAmount(homecontroller.targetAmount.value.toDouble());
     });
     return Scaffold(
+        key: _scaffoldKey,
+        drawer: Drawer(
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        SizedBox(
+          height: 150.h,
+          child: DrawerHeader(
+            decoration: BoxDecoration(
+               gradient: LinearGradient(
+                colors: [Colors.blue, Colors.blueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+            ),
+            ),
+            curve: Curves.easeInOut,
+            child: Padding(
+              padding:  EdgeInsets.only(top: 20.h),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30.sp,
+                ),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ),
+        ),
+        Card(
+           shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+       elevation: 2,
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+
+          child: ListTile(
+            leading: Icon(Icons.history),
+            title: Text('History'),
+            onTap: () {
+              Get.toNamed(AppRoutes.USERHISTORY);
+            },
+          ),
+        ),
+        Card(
+          shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+       elevation: 2,
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: ListTile(
+            leading: Icon(Icons.edit),
+            title: Text('Edit Profile'),
+            onTap: () {
+              Get.toNamed(AppRoutes.SETTING);
+            },
+          ),
+        ),
+      ],
+    ),
+  ),
       body: SafeArea(
         child: Container(
           width: double.infinity,
@@ -36,11 +97,12 @@ class HomeView extends StatelessWidget
                 right: 20.w,
                 top: 20.h,
                 child: InkWell(
-                  onTap: () {
-                    //Get.toNamed(AppRoutes.SETTING); // Navigate to settings page
-                    Get.toNamed(AppRoutes.USERHISTORY); // Navigate to user history page
+                  onTap: () 
+                  {
+                    _scaffoldKey.currentState?.openDrawer();
                   },
                   child: Icon(Icons.settings, size: 30, color: Colors.blueAccent,))),
+              
               Column(
                 
                 children: [
@@ -66,66 +128,110 @@ class HomeView extends StatelessWidget
                             
                             final remaining = reminderTime?.difference(now);
                               }
-                        return Center(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 50,
-                           decoration: BoxDecoration(
-                           borderRadius: BorderRadius.circular(10),
-                           color: Colors.indigo ),
-                                                 child: Padding(
-                           padding: const EdgeInsets.all(8.0),
-                           child: Column(children: [
-                             SizedBox(height: 5.h),
-                             Text(
-                               homecontroller.waterRemindList.isEmpty
-                                   ? "Hello ${homecontroller.userName.toUpperCase()}, No Reminders Set"
-                                   : 
-                               "Hello ${homecontroller.userName.toUpperCase()}, Next Reminder",
-                                 textAlign: TextAlign.center,
-                                 style: TextStyle(
-                                     fontSize: 15.sp,
-                                     fontWeight: FontWeight.bold,
-                                     color: Colors.white)),
+                        return Container(
+                          width: MediaQuery.of(context).size.width - 50,
+                          decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                         padding:  EdgeInsets.all(homecontroller.waterRemindList.isEmpty? 20.0:8.0),
+                         child: Center(                          
+                           child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                             children: [
+                                 TextSpan(
+                                text: "Hello ${homecontroller.userName.toUpperCase()}, ", // Heading part
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2F80ED),
+                                  
+                                   // Royal Blue (Heading)
+                                ),
+                                
+                              ),
+                              TextSpan(
+                                text: homecontroller.waterRemindList.isEmpty
+                                    ? "No Reminder Set" // Subtitle if empty
+                                    : "Next Reminder", // Subtitle if not empty
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF555555),
+                                  
+                                   
+                                ),
+                              ),
+                                                          ],
+                                                        ),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                   
                              SizedBox(height: 10.h),
+                             homecontroller.waterRemindList.isEmpty ? SizedBox():
                              Text(
                                homecontroller.waterRemindList.isEmpty
-                                   ? "Click on add button to Set your first reminder."
+                                   ? ""
                                    :
-                               //"${DateFormat('hh:mm a').format(DateTime(0, 1, 1, nextReminder?.timeOfDay?.hour ?? 0, nextReminder?.timeOfDay?.minute ?? 0))} - ${nextReminder?.waterML} ML",
+                                                   
                                "${nextReminder?.timeOfDay!.format(context)} - ${nextReminder?.waterML} ml",
                                textAlign: TextAlign.center,
                                style: TextStyle(
-                                 color: Colors.white,
+                                 color: Colors.indigo,
                                  fontWeight: FontWeight.bold,
                                  fontSize: 15.sp,
                                )),
                              SizedBox(height: 10.h),
                              homecontroller.waterRemindList.isEmpty ? SizedBox():
                              Text(
-                               "In ${homecontroller.getTimeRemaining(nextReminder?.timeOfDay?? TimeOfDay.now())} minutes",
-                             //  "In ${nextReminder?.timeOfDay?.hour} hrs ${nextReminder?.timeOfDay?.minute} mins",
+                               "In ${homecontroller.getTimeRemaining(nextReminder?.timeOfDay?? TimeOfDay.now())}",
+                            
                                style: TextStyle(
                                  fontSize: 16,
-                                 color: Colors.white,
+                                 color: Colors.blueAccent,
                                ),
                              ),
                              
                            ],
                            ),
-                                                 ),
-                                                 ),
-                        );
+                         ),
+                                               ),
+                                               );
                      
                      
                     }),
 
                     SizedBox(height: 20.h),
+                    
 
                     Expanded(
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         height: 200.h,
-                       decoration: BoxDecoration(color: Colors.red.shade100),
+                        
+                       decoration: BoxDecoration(
+                        
+                      //  color: Colors.orange,
+                       gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFE0F7FA), // Soft Light Cyan
+                        Color(0xFFB2EBF2), // Aqua Tint
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )
+                        ),
                         child: Obx(
                           () => ListView.builder(
                             itemCount: homecontroller.waterRemindList.length,
@@ -322,11 +428,7 @@ class HomeView extends StatelessWidget
                                           }
                                                 homecontroller.addWaterRemind();
                                           Get.back();
-                                          
-                            
-                            
-                                          
-                                        },
+                                    },
                                         child: Text(
                                           'Add Intake',
                                           style: TextStyle(
@@ -379,58 +481,15 @@ class HomeView extends StatelessWidget
               fontWeight: FontWeight.w600,
             ),
             spacing: 20,
-            minutesInterval: 1, // Only show :00, :05, :10 etc.
-            onTimeChange: (time) {
-              //  final now = DateTime.now();
-
-              //           // User ne pick kiya hua time: aaj ki date ke sath
-              //           DateTime selectedDateTime = DateTime(
-              //             now.year,
-              //             now.month,
-              //             now.day,
-              //             time.hour,
-              //             time.minute,
-              //           );
-
-              //           // Agar selected time `now` se pehle ya 12 ghante se aage hai, toh +1 day mat karna
-              //           Duration difference = selectedDateTime.difference(now);
-
-              //           if (difference.inMinutes < 0 || difference.inHours > 12) {
-              //             ScaffoldMessenger.of(context).showSnackBar(
-              //               SnackBar(
-              //                 content: Text("Please select a time within the next 12 hours ⏰"),
-              //                 backgroundColor: Colors.redAccent,
-              //                 duration: Duration(seconds: 2),
-              //               ),
-              //             );
-              //             return;
-              //           }
-
-              //           homecontroller.timeFornotification.value = selectedDateTime;
-              //           homecontroller.getSelectedTime.value =
-              //               DateFormat('hh : mm a').format(selectedDateTime);
-
-              //old          
+            minutesInterval: 1, 
+            onTimeChange: (time) {          
                final formattedTime = DateFormat('hh : mm a').format(time);
               homecontroller.getSelectedTime.value = formattedTime;
               homecontroller.timeFornotification.value = time;
-              
-              print(
-                "Value of time ${homecontroller.timeFornotification.value}",
-              );
-              
-             
-                                    
-                                    }
-                                    
-                                    
-                                    )
-                                    
-              ]));
+              }
+      )
+        ]));
   }
-
-
-              
-            }
+  }
             
           

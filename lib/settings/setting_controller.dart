@@ -10,6 +10,7 @@ class SettingController extends GetxController {
   Rx<TextEditingController> weightTxt = TextEditingController().obs;
  
   final RxString selectedGender = ''.obs;
+  
   final RxInt userWeight= 70.obs; // Default age
   var db = AppDatabase();
 
@@ -23,20 +24,20 @@ class SettingController extends GetxController {
 
  Future<void> getUserData() async {
   final user = await db.getLatestUser();  // or getUserById(1)
-  print('user data retrieved: ${user}');
   if (user != null) {
-    nameTxt.value.text = user.name ?? '';
-    weightTxt.value.text = user.weight?.toString() ?? '';
+    nameTxt.value.text = user.name?.capitalizeFirst ?? '';
+    weightTxt.value.text = user.weight != null ? user.weight!.round().toString() : '';
+    
+    //user.weight.toString() ?? '';
     userWeight.value = user.weight?.toInt() ?? 70; // Default weight if null
-    if(user.gender =='male'){
+    print("User gender: ${user.gender}");
+    if(user.gender =='Male')
+    {
       selectedGender.value = 'male';
       }else{
         selectedGender.value = 'female';
       }
 
-    print('User data retrieved:${user.weight}');
-    print('User data retrieved:${user.gender}');
-    print(user.name);  // name, weight, gender etc.
   }
 }
 

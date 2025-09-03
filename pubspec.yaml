@@ -51,6 +51,7 @@ dependencies:
   animations: ^2.0.7
   android_alarm_manager_plus: ^4.0.7
   wave: ^0.2.2
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

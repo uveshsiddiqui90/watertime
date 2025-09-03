@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
@@ -420,4 +421,19 @@ Future<double> getConsumedAmount() async {
   waterController.updateConsumedAmount(waterConsumed.value);
   return user?.consumedAmount ?? 0.0;
 }
+
+
+Future<void> clearHistory() async {
+  final user = await db.getLatestUser();
+  if (user != null) {
+    await (db.update(db.users)..where((u) => u.id.equals(user.id))).write(
+      UsersCompanion(
+       historyJson: drift.Value(jsonEncode([]) as String?),// history empty
+      ),
+    );
+  }
+}
+
+
+
 }

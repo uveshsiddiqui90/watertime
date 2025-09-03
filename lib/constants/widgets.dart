@@ -135,14 +135,14 @@ class _WeightPickerDialogState extends State<WeightPickerDialog>
 Widget waveWidget(){
   // Deeper Ocean Blue
 final List<List<Color>> oceanGradients = [
-  [Color(0xFF2F80ED), Color(0xFF2F80ED)],
-    [Color(0xFF56CCF2), Color(0xFF2F80ED)], // Light Sky Blue to Royal Blue
+  [Color(0xFF2F80ED), Color(0xFF2F80ED)], [Color(0xFF56CCF2), Color(0xFF2F80ED)], // Light Sky Blue to Royal Blue
+  
+
 ];
 
 
 return WaveWidget(
-              
-              config: CustomConfig(
+               config: CustomConfig(
                gradients: oceanGradients, // Use the calm river gradient
                 durations: [5000, 4000],
                 heightPercentages: [0.65, 0.66],

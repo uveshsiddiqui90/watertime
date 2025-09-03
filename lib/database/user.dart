@@ -9,6 +9,8 @@ class Users extends Table {
   RealColumn get consumedAmount => real().withDefault(Constant(0.0))();
   DateTimeColumn get lastUpdatedDate => dateTime().nullable()();
   TextColumn get historyJson => text().nullable()();
+ 
+
   
   
   

@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watertime/database/app_database.dart';
 import 'dart:io';
@@ -24,7 +25,10 @@ Future<void> resetConsumedAmountTask() async {
   // ✅ Save yesterday's consumed amount into history
   final user = await db.getLatestUser();
   if (user != null) {
-    await db.addDailyHistory(user.consumedAmount ?? 0.0);
+    await db.addDailyHistory(
+      user.consumedAmount ?? 0.0,
+      forDate: DateTime.now().subtract(Duration(days: 1)), // pichle din ka record
+    );
   }
 
   // ✅ Reset consumed amount
@@ -35,9 +39,10 @@ Future<void> resetConsumedAmountTask() async {
 
 
 
+
 class ResetService {
 
- final database = AppDatabase();
+
 
   static void scheduleMidnightReset() {
     final now = DateTime.now();
@@ -56,4 +61,35 @@ class ResetService {
   }
 
 
+
+
+static Future<void> endDayManuallytesting() async {
+  final database = AppDatabase();
+  final user = await database.getLatestUser();
+  if (user == null) return;
+
+  // Today's total
+  final todayTotal = user.consumedAmount ?? 0;
+
+  // Old history
+  List<Map<String, dynamic>> history = [];
+  if (user.historyJson != null && user.historyJson!.isNotEmpty) {
+    history = List<Map<String, dynamic>>.from(jsonDecode(user.historyJson!));
+  }
+
+  // Add new record
+  history.add({
+    'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+    'amount': todayTotal,
+  });
+
+  // Update in DB
+  await database.updateUserData(
+    user.id,
+    historyJson: jsonEncode(history),
+    consumedAmount: 0, // reset
+  );
+
+  print("✅ Day ended: $todayTotal ml saved to history");
+}
 }

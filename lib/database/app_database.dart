@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:watertime/database/remider.dart';
@@ -43,15 +44,33 @@ Future<List<User>> getUsersByWeightRange(double min, double max) {
 }
 
   // Update multiple fields
-  Future<void> updateUser(int id, {String? name, String? gender, double? weight}) async {
-    await (update(users)..where((u) => u.id.equals(id))).write(
-      UsersCompanion(
-        name: Value(name??''),
-        gender: Value(gender),
-        weight: Value(weight),
-      ),
-    );
-  }
+  // Future<void> updateUser(int id, {String? name, String? gender, double? weight}) async {
+  //   await (update(users)..where((u) => u.id.equals(id))).write(
+  //     UsersCompanion(
+  //       name: Value(name??''),
+  //       gender: Value(gender),
+  //       weight: Value(weight),
+  //     ),
+  //   );
+  // }
+
+Future<void> updateUserData(int id,
+    {String? name,
+    String? gender,
+    double? weight,
+    String? historyJson,
+    double? consumedAmount}) async {
+  await (update(users)..where((u) => u.id.equals(id))).write(
+    UsersCompanion(
+      name: name != null ? Value(name) : const Value.absent(),
+      gender: gender != null ? Value(gender) : const Value.absent(),
+      weight: weight != null ? Value(weight) : const Value.absent(),
+      historyJson: historyJson != null ? Value(historyJson) : const Value.absent(),
+      consumedAmount: consumedAmount != null ? Value(consumedAmount) : const Value.absent(),
+    ),
+  );
+}
+
 
 Future<void> updateConsumedAmount(double amount, {bool reset = false}) async {
   final user = await getLatestUser();
@@ -102,19 +121,21 @@ Future<List<Reminder>> getAllReminders() {
 }
 
 
-Future<void> addDailyHistory(double consumed) async 
-{
+Future<void> addDailyHistory(double consumed, {DateTime? forDate}) async {
   final user = await getLatestUser();
   if (user == null) return;
+
+  // Agar date di gayi hai to wo use karo, warna current date lo
+  final saveDate = forDate ?? DateTime.now();
 
   // Parse old history
   final oldHistory = List<Map<String, dynamic>>.from(
     jsonDecode(user.historyJson ?? '[]'),
   );
 
-  // Add today's entry
+  // Add entry
   oldHistory.add({
-    "date": DateTime.now().toIso8601String(),
+    "date": DateFormat('yyyy-MM-dd').format(saveDate), // sirf date part
     "consumedAmount": consumed,
   });
 
@@ -128,6 +149,7 @@ Future<void> addDailyHistory(double consumed) async
     UsersCompanion(historyJson: Value(jsonEncode(oldHistory))),
   );
 }
+
 
 Future<List<Map<String, dynamic>>> getLast7DaysHistory() async {
   final user = await getLatestUser();

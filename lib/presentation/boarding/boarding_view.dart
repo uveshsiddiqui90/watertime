@@ -39,7 +39,7 @@ Widget mainView(BoardingController controller) {
     child: Column(
              children: [
               waveWidget(),
-              SizedBox(height: 30.h),
+              SizedBox(height: 80.h),
                  Text(
                   AppString.welcomeMessage,
                   textAlign: TextAlign.center,
@@ -144,6 +144,7 @@ Widget mainView(BoardingController controller) {
                 ),
               ),
               style:  TextStyle(fontSize: 16.sp),
+              textCapitalization: TextCapitalization.words,
             
             ),
          )] );
