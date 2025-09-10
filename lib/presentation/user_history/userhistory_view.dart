@@ -9,7 +9,7 @@ import 'package:watertime/database/app_database.dart';
 class UserhistoryView extends StatelessWidget {
   final  db = AppDatabase();
 
-  UserhistoryView({Key? key,}) : super(key: key);
+  UserhistoryView({super.key,});
 
   String getDayName(DateTime date) {
     return DateFormat('EEE').format(date); // Mon, Tue, Wed
@@ -56,7 +56,7 @@ class UserhistoryView extends StatelessWidget {
                     leading: CircleAvatar(
                       child: Text(getDayName(date)),
                     ),
-                    title: Text("${getFormattedDate(date)}"),
+                    title: Text(getFormattedDate(date)),
                     trailing: Text("${amount % 1 == 0 ? amount.toInt() : amount} ml"),
                   ),
                 );

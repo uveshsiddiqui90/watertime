@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:watertime/constants/app_image.dart';
 import 'package:watertime/constants/app_string.dart';
 import 'package:watertime/constants/widgets.dart';
 import 'package:watertime/database/app_database.dart';
-import 'package:wave/config.dart';
-import 'package:wave/wave.dart';
 import 'boarding_controller.dart';
 
 class BoardingView extends GetView<BoardingController> 

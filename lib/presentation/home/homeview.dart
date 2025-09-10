@@ -79,10 +79,26 @@ class HomeView extends StatelessWidget
             leading: Icon(Icons.edit),
             title: Text('Edit Profile'),
             onTap: () {
-              Get.toNamed(AppRoutes.SETTING);
-            },
+              AppRoutes.SETTING;
+                          },
           ),
         ),
+        Card(
+          shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+       elevation: 2,
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('LogOut'),
+            onTap: () {
+              homecontroller.deleteDbFile();
+
+                         },
+          ),
+        ),
+
       ],
     ),
   ),
@@ -110,11 +126,11 @@ class HomeView extends StatelessWidget
                   SizedBox(height: 20.h),
                    Obx(
                      () {
+                       final now = homecontroller.currentTime.value; 
                        final nextReminder = homecontroller.getNextReminder(homecontroller.waterRemindList);
                        
                            if (nextReminder != null) {
-                             final now = DateTime.now();
-                            DateTime  reminderTime = DateTime(
+                           DateTime  reminderTime = DateTime(
                                now.year,
                                now.month,
                                now.day,
@@ -126,7 +142,6 @@ class HomeView extends StatelessWidget
                                reminderTime = reminderTime.add(Duration(days: 1));
                              }
                             
-                            final remaining = reminderTime?.difference(now);
                               }
                         return Container(
                           width: MediaQuery.of(context).size.width - 50,

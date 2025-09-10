@@ -1,16 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/database/app_database.dart';
 import 'package:watertime/main.dart';
 import 'package:watertime/model/waterremind_model.dart';
+import 'package:watertime/presentation/routes/app_pages.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:drift/drift.dart' as drift;
-
+import 'package:path/path.dart' as p;
 
 class Homecontroller extends GetxController
 {
@@ -27,7 +31,7 @@ class Homecontroller extends GetxController
  RxDouble waterConsumed = 0.0.obs;
  
 WaterController waterController = Get.put(WaterController());
-
+Rx<DateTime> currentTime = DateTime.now().obs;  // 🔥 Add this
 
   @override
   void onInit() {
@@ -42,6 +46,11 @@ WaterController waterController = Get.put(WaterController());
     Timer.periodic(Duration(minutes: 1), (timer) {
     update(); // Triggers UI rebuild
   });
+  ever(currentTime, (_) {}); // just to trigger Obx rebuild
+    Stream.periodic(Duration(seconds: 1), (_) => DateTime.now())
+        .listen((now) {
+      currentTime.value = now;
+    });
     // Set initial consumed amount
   }
 
@@ -375,7 +384,7 @@ RxString selectedGender = ''.obs;
 
  Future<void> getUserData() async {
   final user = await db.getLatestUser();  // or getUserById(1)
-  print('user data retrieved: ${user}');
+  print('user data retrieved: $user');
   if (user != null) {
     userName.value = user.name ?? '';
     userWeight.value = user.weight ?? 70.0; // Default weight if null
@@ -434,6 +443,27 @@ Future<void> clearHistory() async {
   }
 }
 
+ Future<void> deleteDbFile() async 
+  {
+  final dir = await getApplicationDocumentsDirectory();
+  final dbFile = File(p.join(dir.path, 'app.sqlite'));
+  if (await dbFile.exists()) {
+    await dbFile.delete().then((_) {
+      print("entered delete db file");
 
+      clearPrefData();
+      Get.offAllNamed(AppRoutes.BOARDING);
+      
+    });
+    print("🔥 Deleted old DB");
+  } else {
+    print("📁 DB already deleted");
+  }
+}
+
+  Future<void> clearPrefData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // saara local data remove karega
+  }
 
 }

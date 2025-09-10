@@ -9,6 +9,8 @@ import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class WeightInput extends StatefulWidget {
+  const WeightInput({super.key});
+
   @override
   _WeightInputState createState() => _WeightInputState();
 }
@@ -50,7 +52,7 @@ WeightController weightController = Get.put(WeightController());
                 ),
               ),
               SizedBox(height: 10),
-              Text('${weight} kg',
+              Text('$weight kg',
                 style: TextStyle(fontSize: 30,color: AppColor.textColor,fontWeight: FontWeight.bold),),
             ],
           ),
@@ -67,7 +69,7 @@ class WeightPickerDialog extends StatefulWidget
 {
   final int? initialWeight; 
 
-  WeightPickerDialog({this.initialWeight}); 
+  const WeightPickerDialog({super.key, this.initialWeight}); 
 
   @override
   _WeightPickerDialogState createState() => _WeightPickerDialogState();

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:watertime/constants/pref_helper.dart';
 import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
 
@@ -26,7 +27,7 @@ class WeightController extends GetxController
       Get.snackbar('Error', 'Daily water requirement cannot be zero or negative');
       return;
     }
-    
+     await PrefHelper.saveStep(4);
     Get.offAllNamed(AppRoutes.HOME,
     arguments: {'initialWaterGoal': calculateDailyWaterRequirement().toStringAsFixed(1)});
   }

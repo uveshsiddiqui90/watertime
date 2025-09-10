@@ -3,13 +3,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watertime/constants/pref_helper.dart';
 import 'package:watertime/constants/theme.dart';
 import 'package:watertime/database/app_database.dart';
-import 'package:watertime/presentation/boarding/boarding_view.dart';
-import 'package:watertime/presentation/home/homeview.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
-import 'package:watertime/presentation/weight_measure/weight_view.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -26,11 +23,8 @@ void callback() {
 void main() async 
 {
   WidgetsFlutterBinding.ensureInitialized();
-   SharedPreferences prefs = await SharedPreferences.getInstance();
-  int step = prefs.getInt('onboardingStep') ?? 1;
   await AndroidAlarmManager.initialize();
   tz.initializeTimeZones();
-
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata')); 
   await NotificationService.requestPermissions();
   await NotificationService.initialize();
@@ -39,7 +33,20 @@ void main() async
  // MyApp.deleteDbFile(); // Delete old DB file if exists
  MyApp.rescheduleAllNotifications();
  ResetService.scheduleMidnightReset();
- runApp(MyApp());
+  
+  int step = await PrefHelper.getStep();
+
+  String initialRoute;
+  if (step == 1) {
+    initialRoute = AppRoutes.BOARDING;     // Name Screen
+  } else if (step == 2) {
+    initialRoute = AppRoutes.GENDERSELECTION;   // Gender Screen
+  } else if (step == 3) {
+    initialRoute = AppRoutes.WEIGHT;   // Weight Screen
+  } else {
+    initialRoute = AppRoutes.HOME;     // Home Screen
+  }
+ runApp(MyApp(initialRoute: initialRoute,));
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
@@ -47,7 +54,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  Flutter
 
 class MyApp extends StatelessWidget 
 {
-   MyApp({super.key});
+  final String initialRoute;
+   const MyApp({super.key, required this.initialRoute});
  static final db = AppDatabase(); // Database instance
 
   // This widget is the root of your application.
@@ -64,14 +72,14 @@ class MyApp extends StatelessWidget
          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0),),
          child: GetMaterialApp(
            title: 'Flutter Demo',
-           initialRoute: AppRoutes.BOARDING, 
+           initialRoute: initialRoute,//AppRoutes.BOARDING, 
            getPages: AppPages.routes,
           //  theme: ThemeData(
           //  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           // ),
           theme: waterTheme,
           debugShowCheckedModeBanner: false,
-          home: BoardingView()  
+          //home: BoardingView()  
           
        ),
        );

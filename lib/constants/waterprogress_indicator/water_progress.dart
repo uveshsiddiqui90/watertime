@@ -8,9 +8,13 @@ import 'package:watertime/constants/waterprogress_indicator/waterprogress_contro
 class WaterLevelWidget extends StatelessWidget {
   final WaterController controller = Get.find();
 
+   WaterLevelWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
+    return AnimatedBuilder(
+        animation: controller.waveController,
+        builder: (context, child) {
       double waveValue = controller.waveController.value;
       double percent = controller.percentage;
       double consumed = controller.consumedAmount.value;
@@ -52,6 +56,7 @@ class WaterLevelWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D47A1)
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -60,6 +65,7 @@ class WaterLevelWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
+                    color: Color(0xFF0D47A1)
                   ),
                 ),
               ],
@@ -67,6 +73,7 @@ class WaterLevelWidget extends StatelessWidget {
           ],
         ),
       );
+        
     });
   }
 }

@@ -28,11 +28,6 @@ class ActivityController extends GetxController {
     // Initialization logic here
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-    // Logic to run when the controller is ready
-  }
 
   @override
   void onClose() {

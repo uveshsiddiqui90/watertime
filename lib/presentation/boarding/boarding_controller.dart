@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:watertime/constants/pref_helper.dart';
 import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
 
@@ -37,7 +38,7 @@ Future<void> saveUserAndNavigate() async {
         print('Latest user loaded name: ${(user.name)}))');
         print('Latest user loaded weight: ${(user.weight)}))');
         }});
-
+     await PrefHelper.saveStep(2);  // ✅ Save current progress
     // ✅ User saved successfully
     Get.offAllNamed(AppRoutes.GENDERSELECTION);
    // loadLatestUser();
@@ -63,17 +64,7 @@ Future<void> saveUserAndNavigate() async {
   
   
   // Controller logic goes here
-  @override
-  void onInit() {
-    super.onInit();
-    // Initialization code
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
-    // Code to run when the controller is ready
-  }
 
   @override
   void onClose() {

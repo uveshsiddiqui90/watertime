@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:watertime/constants/pref_helper.dart';
 import 'package:watertime/database/app_database.dart';
 import '../routes/app_pages.dart';
 
@@ -21,6 +22,7 @@ Future<void> saveGenderAndNavigate() async {
 print("ENter 1");
   if (insertedId > 0) 
   {
+     await PrefHelper.saveStep(3);
     Get.offAllNamed(AppRoutes.WEIGHT); 
     db.getLatestUser().then((user) {
       if (user != null) {
@@ -59,11 +61,6 @@ print("ENter 1");
     // Initialization code
   
 
-  @override
-  void onReady() {
-    super.onReady();
-    // Code to run when the controller is ready
-  }
 
   @override
   void onClose() {
