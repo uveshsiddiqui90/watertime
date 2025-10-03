@@ -1,11 +1,20 @@
-# flutter_local_notifications
+# --- flutter_local_notifications + Gson ke liye rules ---
+
+# Preserve generic type info (Gson ko chahiye hota hai)
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# Keep flutter_local_notifications plugin classes
 -keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep class com.dexterous.flutterlocalnotifications.models.** { *; }
 
-# WorkManager (agar use kar rahe ho)
--keep class androidx.work.** { *; }
--keepclassmembers class * extends androidx.work.ListenableWorker {
-    <init>(...);
+# Keep Gson (runtime serialization)
+-keep class com.google.gson.** { *; }
+
+# Keep top-level entry points (AlarmManager + background handlers)
+-keepclassmembers class * {
+    @androidx.annotation.Keep <methods>;
 }
-
-# android_alarm_manager_plus
--keep class io.flutter.plugins.androidalarmmanager.** { *; }
+-keepclassmembers class * {
+    @android.annotation.Keep <methods>;
+}

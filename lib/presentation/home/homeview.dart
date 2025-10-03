@@ -169,10 +169,10 @@ class HomeView extends StatelessWidget
                                 text: "Hello ${homecontroller.userName.toUpperCase()}, ", // Heading part
                                 style: TextStyle(
                                   fontSize: 15.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w700,
                                   color: Color(0xFF2F80ED),
-                                  
-                                   // Royal Blue (Heading)
+                                  // Royal Blue (Heading)
                                 ),
                                 
                               ),
@@ -256,6 +256,7 @@ class HomeView extends StatelessWidget
                               }
                               final reminder = homecontroller.waterRemindList[index];
                               
+                              
                               return Container(
                                 width: MediaQuery.of(context).size.width,
                                 height: 80.h,
@@ -270,8 +271,7 @@ class HomeView extends StatelessWidget
                                       spreadRadius: 1,
                                       blurRadius: 5,
                                       offset: Offset(
-                                        0,
-                                        3,
+                                        0,3
                                       ), // changes position of shadow
                                     ),
                                   ],
@@ -304,9 +304,11 @@ class HomeView extends StatelessWidget
                                     IconButton(
                                       icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () {
+
+                                        print("Deleting reminder with ID: ${reminder.id}");
                                         homecontroller.deleteNotification(reminder.id!);
                                         homecontroller.db.deleteReminder(reminder.id!);
-                                      },
+                                        },
                                     ),
                                   ],
                                 ),
@@ -428,9 +430,7 @@ class HomeView extends StatelessWidget
                                       ),
                                       child: TextButton(
                                         onPressed: () {
-                                  
-
-                                          if (homecontroller.waterML.value.isEmpty) {
+                                         if (homecontroller.waterML.value.isEmpty) {
                                             Get.snackbar(
                                               "Error",
                                               "Please enter water intake amount",

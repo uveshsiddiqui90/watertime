@@ -108,6 +108,8 @@ Future<List<Reminder>> getRemindersForUser(int userId)
 
 // Delete
 Future<void> deleteReminder(int id) {
+  print("Value of id to delete: $id");
+  print("Deleting reminder with ID: ${reminders.id} from DB");
   return (delete(reminders)..where((r) => r.id.equals(id))).go();
 }
 

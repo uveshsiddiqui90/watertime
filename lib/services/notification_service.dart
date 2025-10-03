@@ -9,7 +9,37 @@ import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/services/notifications/notification_details.dart';
 
-  class NotificationService 
+@pragma('vm:entry-point')
+Future<void> notificationTapBackground(NotificationResponse response) async {
+  // handle background action
+  print('Background notification action received 1');
+  debugPrint('Background action: ${response.actionId}, payload: ${response.payload}');
+  try {
+    
+    final payload = response.payload;
+    print('Background notification action received 2');
+    print(payload);
+    if (payload == null) return;
+    
+    final data = jsonDecode(payload);
+    final waterML = int.tryParse(data['water_ml'] ?? '0') ?? 0;
+    print('Parsed waterML in background: $waterML');
+    if (response.actionId == 'done' && waterML > 0) {
+      // Kill state me direct DB call kar
+      final db = AppDatabase();
+      await db.updateConsumedAmount(waterML.toDouble());
+      debugPrint("✅ $waterML ml saved in DB (kill state)");
+    } else if (response.actionId == 'skip') {
+      debugPrint("❌ SKIP pressed (kill state)");
+    } else {
+      debugPrint("ℹ️ Notification body tapped (kill state)");
+    }
+  } catch (e) {
+    debugPrint("❌ Error in background notification action: $e");
+  }
+  }
+
+class NotificationService 
 {
   static final _notifications = FlutterLocalNotificationsPlugin();
   static Homecontroller homecontroller = Get.put(Homecontroller());
@@ -320,8 +350,4 @@ static Future<void> showTestNotification() async {
 
 }
 
-@pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse response) {
-  // Required for background response
-  debugPrint('Notification (background) tapped: ${response.actionId}');
-}
+

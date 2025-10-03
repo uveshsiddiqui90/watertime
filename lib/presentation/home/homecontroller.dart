@@ -29,9 +29,9 @@ class Homecontroller extends GetxController
  var db = AppDatabase();
  RxString userName = ''.obs;
  RxDouble waterConsumed = 0.0.obs;
- 
-WaterController waterController = Get.put(WaterController());
-Rx<DateTime> currentTime = DateTime.now().obs;  // 🔥 Add this
+ WaterController waterController = Get.put(WaterController());
+ Rx<DateTime> currentTime = DateTime.now().obs;  // 🔥 Add this
+ RxInt reminderId = 0.obs;
 
   @override
   void onInit() {
@@ -65,6 +65,93 @@ Rx<DateTime> currentTime = DateTime.now().obs;  // 🔥 Add this
   }
 
   // Function to add a new water reminder
+// addWaterRemind() async {
+//   if (waterMLController.value.text.isEmpty) {
+//     Get.snackbar(
+//       'Error',
+//       'Please enter the amount of water in ML',
+//       snackPosition: SnackPosition.TOP,
+//     );
+//     return;
+//   }
+
+//   final now = DateTime.now();
+//   final selected = timeFornotification.value;
+
+//   // Adjust scheduledTime to next day if selected time is before now
+//   DateTime scheduledTime = DateTime(
+//     now.year,
+//     now.month,
+//     now.day,
+//     selected.hour,
+//     selected.minute,
+//   );
+
+//   if (!scheduledTime.isAfter(now)) {
+//     // Add 1 day if selected time is earlier than now
+//     scheduledTime = scheduledTime.add(Duration(days: 1));
+//   }
+
+//   // Double-check: Scheduled time must still be in future
+//   if (!scheduledTime.isAfter(now)) {
+//     Get.snackbar(
+//       'Invalid Time',
+//       'Please select a valid future time',
+//       snackPosition: SnackPosition.TOP,
+//       backgroundColor: Colors.red,
+//     );
+//     return;
+//   }
+
+//   WaterRemindModel waterRemind = WaterRemindModel(
+//     time: getSelectedTime.value,
+//     waterML: waterMLController.value.text,
+//     timeOfDay: TimeOfDay.fromDateTime(scheduledTime),
+//     id: nextId.value++,
+//   );
+
+//   await db.insertReminder(RemindersCompanion(
+//     userId: drift.Value(1),
+//     title: drift.Value('Drink Water'),
+//     body: drift.Value('Time to stay hydrated!'),
+//     scheduledTime: drift.Value(scheduledTime),
+//     reminderId: drift.Value(nextId.value++),
+//     time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)),
+//     waterML: drift.Value(waterMLController.value.text),
+//   ));
+
+//   final reminders = await db.getAllReminders();
+//   waterRemindList.clear();
+
+//   for (var reminder in reminders) {
+//     waterRemindList.add(WaterRemindModel(
+//       time: reminder.scheduledTime.toString(),
+//       waterML: reminder.waterML,
+//       timeOfDay: TimeOfDay(
+//         hour: reminder.scheduledTime.hour,
+//         minute: reminder.scheduledTime.minute,
+//       ),
+//       id: reminder.id,
+//       isActive: reminder.isActive,
+//     ));
+//   }
+
+//   // Sort reminders by time
+//   waterRemindList.sort((a, b) {
+//     final aMinutes = a.timeOfDay!.hour * 60 + a.timeOfDay!.minute;
+//     final bMinutes = b.timeOfDay!.hour * 60 + b.timeOfDay!.minute;
+//     return aMinutes.compareTo(bMinutes);
+//   });
+
+//   waterRemindList.refresh();
+
+//   final newReminder = reminders.last;
+//   scheduleNotificationFromDB(newReminder);
+
+//   waterMLController.value.clear();
+// }
+
+// Function to add a new water reminder
 addWaterRemind() async {
   if (waterMLController.value.text.isEmpty) {
     Get.snackbar(
@@ -102,23 +189,37 @@ addWaterRemind() async {
     );
     return;
   }
+ // reminderId.value = nextId.value++;
 
   WaterRemindModel waterRemind = WaterRemindModel(
     time: getSelectedTime.value,
     waterML: waterMLController.value.text,
     timeOfDay: TimeOfDay.fromDateTime(scheduledTime),
-    id: nextId.value++,
+    //id: reminderId.value
   );
 
-  await db.insertReminder(RemindersCompanion(
-    userId: drift.Value(1),
-    title: drift.Value('Drink Water'),
-    body: drift.Value('Time to stay hydrated!'),
-    scheduledTime: drift.Value(scheduledTime),
-    reminderId: drift.Value(nextId.value++),
-    time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)),
-    waterML: drift.Value(waterMLController.value.text),
-  ));
+  // await db.insertReminder(RemindersCompanion(
+  //   userId: drift.Value(1),
+  //   title: drift.Value('Drink Water'),
+  //   body: drift.Value('Time to stay hydrated!'),
+  //   scheduledTime: drift.Value(scheduledTime),
+  //   reminderId: drift.Value(reminderId.value),
+  //   time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)),
+  //   waterML: drift.Value(waterMLController.value.text),
+  // ));
+
+  final id = await db.into(db.reminders).insert(
+    RemindersCompanion(
+      userId: drift.Value(1),
+      title: drift.Value('Drink Water'),
+      body: drift.Value('Time to stay hydrated!'),
+      scheduledTime: drift.Value(scheduledTime),
+      // ❌ reminderId save nahi karna
+      time: drift.Value(waterRemind.timeOfDay!.format(Get.context!)),
+      waterML: drift.Value(waterMLController.value.text),
+    ),
+  );
+
 
   final reminders = await db.getAllReminders();
   waterRemindList.clear();
@@ -136,11 +237,17 @@ addWaterRemind() async {
     ));
   }
 
-  // Sort reminders by time
+  // ✅ FIXED SORTING (future reminders first, past ones shifted to next day)
   waterRemindList.sort((a, b) {
-    final aMinutes = a.timeOfDay!.hour * 60 + a.timeOfDay!.minute;
-    final bMinutes = b.timeOfDay!.hour * 60 + b.timeOfDay!.minute;
-    return aMinutes.compareTo(bMinutes);
+    final now = DateTime.now();
+
+    final aDT = DateTime(now.year, now.month, now.day, a.timeOfDay!.hour, a.timeOfDay!.minute);
+    final aAdjusted = aDT.isBefore(now) ? aDT.add(Duration(days: 1)) : aDT;
+
+    final bDT = DateTime(now.year, now.month, now.day, b.timeOfDay!.hour, b.timeOfDay!.minute);
+    final bAdjusted = bDT.isBefore(now) ? bDT.add(Duration(days: 1)) : bDT;
+
+    return aAdjusted.compareTo(bAdjusted);
   });
 
   waterRemindList.refresh();
@@ -150,6 +257,9 @@ addWaterRemind() async {
 
   waterMLController.value.clear();
 }
+
+
+
 
 
 WaterRemindModel? getNextReminder(List<WaterRemindModel> reminders) {
@@ -189,12 +299,14 @@ WaterRemindModel? getNextReminder(List<WaterRemindModel> reminders) {
 
 
 
-Future<void> _scheduleNotification(WaterRemindModel reminder) async {
+Future<void> scheduleNotification(WaterRemindModel reminder) async {
+
     await NotificationService.scheduleWaterReminder(
       id: reminder.id!, // Using the model's ID
       time: reminder.timeOfDay!, // Using TimeOfDay from model
       amount: reminder.waterML!, // Using amount from model
     );
+    print("Scheduling notification for ID: ${reminder.id}, Time: ${reminder.timeOfDay}, Amount: ${reminder.waterML}");
 
 
    final now = DateTime.now();
@@ -222,15 +334,15 @@ Future<void> _scheduleNotification(WaterRemindModel reminder) async {
   }
 
 
-Future<void> scheduleNotificationFromDB(Reminder reminder) async {
+Future<void> scheduleNotificationFromDB(Reminder reminder) async 
+{
   final time = TimeOfDay(
     hour: reminder.scheduledTime.hour,
     minute: reminder.scheduledTime.minute,
-    
-  );
+   );
 
   await NotificationService.scheduleWaterReminder(
-    id: reminder.reminderId ?? reminder.id,
+    id:  reminder.id,  //reminder.reminderId ?? reminder.id,
     time: time,
     amount: reminder.waterML,
   );
@@ -238,8 +350,11 @@ Future<void> scheduleNotificationFromDB(Reminder reminder) async {
 
 
   void deleteNotification(int id) {
+    print("Deleting notification with ID: $id");
+    print("Current reminders before deletion: ${waterRemindList.map((r) => r.id).toList()}");
     waterRemindList.removeWhere((r) => r.id == id);
     NotificationService.cancelReminder(id);
+    AndroidAlarmManager.cancel(id);        
     }
 
  void getAllRemindersfromDatabase() async {
@@ -467,3 +582,4 @@ Future<void> clearHistory() async {
   }
 
 }
+

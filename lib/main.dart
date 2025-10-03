@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +21,9 @@ import 'package:watertime/services/reset_service/resetservice.dart';
 void callback() {
   NotificationService.backgroundCallback();
 }
+
+
+
 
 void main() async 
 {
@@ -80,8 +85,7 @@ class MyApp extends StatelessWidget
           theme: waterTheme,
           debugShowCheckedModeBanner: false,
           //home: BoardingView()  
-          
-       ),
+          ),
        );
       });
     
@@ -125,8 +129,6 @@ static Future<void> rescheduleAllNotifications() async {
       amount: reminder.waterML,
     );
   }
-
-  print("🔁 All reminders rescheduled from DB");
 }
 
 static resetConsumedAmountTask() async {
