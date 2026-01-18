@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,6 +51,7 @@ void main() async
     initialRoute = AppRoutes.HOME;     // Home Screen
   }
  runApp(MyApp(initialRoute: initialRoute,));
+ print("🚀 App started with initial route: $initialRoute");
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
