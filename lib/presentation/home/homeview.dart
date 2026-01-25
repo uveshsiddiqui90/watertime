@@ -3,9 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:watertime/constants/app_color.dart';
+import 'package:watertime/constants/app_image.dart';
 import 'package:watertime/constants/waterprogress_indicator/water_progress.dart';
 import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
+import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
 
@@ -14,6 +17,7 @@ class HomeView extends StatelessWidget
   final Homecontroller homecontroller = Get.put(Homecontroller());
   final WaterController waterController = Get.put(WaterController());
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  var db = AppDatabase();
 
   HomeView({super.key});
 
@@ -228,14 +232,12 @@ class HomeView extends StatelessWidget
                     }),
 
                     SizedBox(height: 20.h),
-                    
 
                     Expanded(
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         height: 200.h,
-                        
-                       decoration: BoxDecoration(
+                        decoration: BoxDecoration(
                         
                       //  color: Colors.orange,
                        gradient: LinearGradient(
@@ -247,227 +249,62 @@ class HomeView extends StatelessWidget
                       end: Alignment.bottomCenter,
                     )
                         ),
-                        child: Obx(
-                          () => ListView.builder(
-                            itemCount: homecontroller.waterRemindList.length,
-                            itemBuilder: (context, index) {
-                              if (index >= homecontroller.waterRemindList.length) {
-                                return SizedBox.shrink();
-                              }
-                              final reminder = homecontroller.waterRemindList[index];
-                              
-                              
-                              return Container(
-                                width: MediaQuery.of(context).size.width,
-                                height: 80.h,
-                                margin: EdgeInsets.all(10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey,
-                                      spreadRadius: 1,
-                                      blurRadius: 5,
-                                      offset: Offset(
-                                        0,3
-                                      ), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                        homecontroller.formatTime(homecontroller.waterRemindList[index].timeOfDay),
-                                          style: TextStyle(
-                                            fontSize: 18.sp,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ),
-                                        SizedBox(height: 5.h),
-                                        Text(
-                                          '${homecontroller.waterRemindList[index].waterML} ml',
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
+                       child: Center(
+                          child: IconButton(onPressed: (){
+                             
+                             if(homecontroller.waterConsumed.value < homecontroller.targetAmount.value)
+                             {
+                              homecontroller.addWater(200); // You should have this function
+                              db.updateConsumedAmount(200);
+                              homecontroller.playAddWaterAnimation(200);
+                              homecontroller.showLottie.value = true;
+                              Future.delayed(const Duration(seconds: 3), () {
+                                homecontroller.showLottie.value = false;
+                              });
 
-                                        print("Deleting reminder with ID: ${reminder.id}");
-                                        homecontroller.deleteNotification(reminder.id!);
-                                        homecontroller.db.deleteReminder(reminder.id!);
-                                        },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
+                              }else{
+                                homecontroller.playGoalCompletedAnimation();
+
+                              } 
+                                
+
+
+                              
+
+                                                 
+                          }, icon: Image.asset(AppImage.addwater, width: 200.w, height: 200.h
+                         ),
+                         
+                          
                   
-                ],
-              ),
-              
-              Positioned(
-                bottom: 50.h,
-                left: 20.w,
-                child: Container(
-                  width: 50.w,
-                  height: 50.h,
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: IconButton(
-                      icon: Icon(Icons.add, color: Colors.white, size: 30),
-                      onPressed: () {
-                        Get.bottomSheet(
-                          Container(
-                            height: 600.h,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
-                              ),
-                            ),
-                            padding: EdgeInsets.all(16),
-                            child: Stack(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Text(
-                                    "Add Water Intake",
-                                    style: TextStyle(
-                                      fontSize: 24.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColor.textColor,
-                                    ),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Get.back();
-                                      },
-                                      child: Icon(
-                                        Icons.close,
-                                        color: AppColor.textColor,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    buildTimePicker(context, homecontroller),
-                                    // SizedBox(width: 20),
-                                    SizedBox(
-                                      width: 70,
-                                      child: TextField(
-                                        controller: homecontroller.waterMLController.value,
-                                        decoration: InputDecoration(
-                                          labelText: 'Add ml',
-                                          labelStyle: TextStyle(
-                                            color: AppColor.textColor,
-                                            fontSize: 13,
-                                          ),
-        
-                                          // This gives just the bottom border
-                                          border: UnderlineInputBorder(),
-                                          // Optional: Customize the border color
-                                          enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                              color: Colors.indigo,
-                                            ),
-                                          ),
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(
-                                              color: Colors.indigo,
-                                              width: 2,
-                                            ),
-                                          ),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        onChanged: (value) {
-                                          homecontroller.waterML.value = value;
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 20),
-                                  ],
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      width: double.infinity,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: AppColor.buttonColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: TextButton(
-                                        onPressed: () {
-                                         if (homecontroller.waterML.value.isEmpty) {
-                                            Get.snackbar(
-                                              "Error",
-                                              "Please enter water intake amount",
-                                              snackPosition: SnackPosition.TOP,
-                                              backgroundColor: Colors.redAccent,
-                                              colorText: const Color.fromRGBO(255, 255, 255, 1),
-                                              duration: const Duration(seconds: 2),
-                                            );
-                                            return;
-                                          }
-                                                homecontroller.addWaterRemind();
-                                          Get.back();
-                                    },
-                                        child: Text(
-                                          'Add Intake',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          barrierColor: Colors.black54, // Optional: semi-transparent background
-                          isDismissible: true, // Can close by tapping outside
-                          enableDrag: true, // Can swipe down to close
-                        );
-                      },
+              ))))],
+               ),
+                Obx(() { 
+                  if (!homecontroller.showLottie.value) return const SizedBox(); 
+                return Center( child: 
+                Lottie.asset( 
+                'assets/lottie/lottie_animate.json', 
+                 repeat: false,
+                 animate: true,
+                 fit: BoxFit.fill,
+                 reverse: true
+                   ), ); }),
+
+                    Obx(() { 
+                  if (!homecontroller.showLottie.value) return const SizedBox(); 
+                   return Center(
+                    
+                    child: floatingText("Water added 200ml"),
+                    );
+                    },
                     ),
-                  ),
-                ),
-              ),
-            ],
+                    achievementAnimateion()
+                   
+
+                   
+  
+  
+  ],
           ),
         ),
       ),
@@ -505,6 +342,97 @@ class HomeView extends StatelessWidget
       )
         ]));
   }
+
+
+ 
+
+
+Widget floatingText(String text) {
+  return TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: const Duration(milliseconds: 800),
+    builder: (context, value, child) {
+      return Transform.translate(
+        offset: Offset(0, -30 * value),
+        child: Opacity(
+          opacity: 1 - value,
+          child: Text(
+            text,
+
+            style: TextStyle(
+              fontSize: 30.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent,
+              fontStyle: FontStyle.italic,
+
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+
+Widget achievementAnimateion() {
+  return Obx(() {
+  if (!homecontroller.showGoalAnimation.value) {
+    return const SizedBox.shrink();
   }
+
+  return Positioned.fill(
+    child: IgnorePointer(
+      ignoring: true,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // dark overlay
+          Container(color: Colors.black.withOpacity(0.35)),
+
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🎉 CONFETTI / SUCCESS LOTTIE
+              Lottie.asset(
+                'assets/lottie/lottie_animate.json',
+                fit: BoxFit.cover,
+                repeat: false,
+              ),
+
+              const SizedBox(height: 16),
+
+              // 🏆 TEXT
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.7, end: 1),
+                duration: const Duration(milliseconds: 600),
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Text(
+                      'Daily Goal Completed 🎉',
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 20,
+                            color: Colors.blueAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+});
+
             
-          
+}}

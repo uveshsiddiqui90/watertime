@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +10,7 @@ import 'package:watertime/constants/pref_helper.dart';
 import 'package:watertime/constants/theme.dart';
 import 'package:watertime/database/app_database.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
+import 'package:watertime/services/fcm_service.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -28,6 +31,12 @@ void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidAlarmManager.initialize();
+  // await Firebase.initializeApp();
+  // FirebaseMessaging.onBackgroundMessage(
+  //   firebaseMessagingBackgroundHandler,
+  // );
+ // await FCMService.init(); // 🔥 ADD THIS
+ // await FCMService.subscribeToAllUsers();
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata')); 
   await NotificationService.requestPermissions();
@@ -51,7 +60,8 @@ void main() async
     initialRoute = AppRoutes.HOME;     // Home Screen
   }
  runApp(MyApp(initialRoute: initialRoute,));
- print("🚀 App started with initial route: $initialRoute");
+ // ✅ FIREBASE BACKGROUND ME INIT HOGA
+ // MyApp.initFirebaseInBackground();
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =  FlutterLocalNotificationsPlugin();
@@ -167,5 +177,21 @@ static Future<void> forceMidnightTest() async {
 
   print("🚀 Force midnight test done: History updated & amount reset");
 }
+static Future<void> initFirebaseInBackground() async {
+  try {
+    await Firebase.initializeApp();
 
+    FirebaseMessaging.onBackgroundMessage(
+      firebaseMessagingBackgroundHandler,
+    );
+
+    await FCMService.init();
+    await FCMService.subscribeToAllUsers();
+
+    print("✅ Firebase + FCM initialized");
+  } catch (e) {
+    // ⚠️ NET NA HO TO APP CRASH / FREEZE NA HO
+    print("⚠️ Firebase skipped (offline): $e");
+  }
+}
 }

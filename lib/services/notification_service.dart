@@ -41,7 +41,7 @@ Future<void> notificationTapBackground(NotificationResponse response) async {
 
 class NotificationService 
 {
-  static final _notifications = FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   static Homecontroller homecontroller = Get.put(Homecontroller());
 
   final AppDatabase database;
@@ -53,6 +53,34 @@ class NotificationService
 
   },
 );
+
+
+// ⚡ INSTANT NOTIFICATION (FCM → Local bridge)
+  static Future<void> showInstantNotification({
+    required String title,
+    required String body,
+  }) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'fcm_default_channel', // channel id
+      'FCM Notifications',   // channel name
+      channelDescription: 'Notifications from Firebase Cloud Messaging',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
+
+    await _notifications.show(
+      DateTime.now().millisecondsSinceEpoch ~/ 1000, // unique id
+      title,
+      body,
+      notificationDetails,
+    );
+  }
 
 
 

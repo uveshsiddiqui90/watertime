@@ -15,4 +15,5 @@ class AppImage {
   static const String watersmily = 'assets/images/water_smily.png';
   static const String maleavtar= 'assets/images/male_avtar.png';
   static const String femaleavtar = 'assets/images/female_avtar.png';
+  static const String addwater = 'assets/images/add_water.png';
 }

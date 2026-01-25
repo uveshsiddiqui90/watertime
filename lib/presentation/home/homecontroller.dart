@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +13,7 @@ import 'package:watertime/database/app_database.dart';
 import 'package:watertime/main.dart';
 import 'package:watertime/model/waterremind_model.dart';
 import 'package:watertime/presentation/routes/app_pages.dart';
+import 'package:watertime/services/fcm_service.dart';
 import 'package:watertime/services/notification_service.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:path/path.dart' as p;
@@ -579,6 +581,65 @@ Future<void> clearHistory() async {
   Future<void> clearPrefData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // saara local data remove karega
+  }
+
+
+
+  RxBool showLottie = false.obs;
+
+void playLottie() {
+  showLottie.value = true;
+
+  Future.delayed(const Duration(seconds: 2), () {
+    showLottie.value = false;
+  });
+}
+
+
+
+  final addedML = 0.obs;
+
+  void playAddWaterAnimation(int ml) {
+    addedML.value = ml;
+    showLottie.value = true;
+
+    // auto hide after animation
+    Future.delayed(const Duration(seconds: 3), () {
+      showLottie.value = false;
+    });
+  }
+
+final showGoalAnimation = false.obs;
+void playGoalCompletedAnimation() {
+    showGoalAnimation.value = true;
+
+    Future.delayed(const Duration(seconds: 3), () {
+      showGoalAnimation.value = false;
+    });
+  }
+
+
+  Future<void> _initFCMAfterUI() async {
+    try {
+      await Firebase.initializeApp();
+
+      await FCMService.init();
+      await FCMService.subscribeToAllUsers();
+
+      debugPrint("✅ FCM initialized safely after UI");
+    } catch (e) {
+      debugPrint("⚠️ FCM skipped (offline / error): $e");
+    }
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+
+    // 🔥 UI ke baad FCM init
+    Future.delayed(const Duration(seconds: 2), () async {
+      await _initFCMAfterUI();
+    });
   }
 
 }

@@ -52,6 +52,10 @@ dependencies:
   android_alarm_manager_plus: ^4.0.7
   wave: ^0.2.2
   shared_preferences: ^2.5.3
+  firebase_messaging: ^16.1.1
+  firebase_core: ^4.4.0
+  lottie: ^3.3.1
+
 
 dev_dependencies:
   flutter_test:
@@ -86,6 +90,9 @@ flutter:
    - assets/images/water_glass_pic.jpg
    - assets/images/waterwave.png
    - assets/images/water_smily.png
+   - assets/images/add_water.png
+   - assets/lottie/lottie_animate.json
+   - assets/lottie/celebration.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
