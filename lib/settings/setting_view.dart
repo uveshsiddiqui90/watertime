@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:watertime/constants/widgets.dart';
+import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/settings/setting_controller.dart';
 
 class SettingView extends StatelessWidget {
   
   final SettingController settingController = Get.put(SettingController());
+  final Homecontroller homecontroller  = Get.put(Homecontroller());
 
   SettingView({super.key});
 
@@ -32,6 +34,9 @@ class SettingView extends StatelessWidget {
                 ),
                 prefixIcon: Icon(Icons.person_2_outlined),
               ),
+              onChanged: (String name){
+                homecontroller.userName.value = name;
+              },
             ),
             SizedBox(height: 16),
 

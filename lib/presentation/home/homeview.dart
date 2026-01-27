@@ -83,8 +83,9 @@ class HomeView extends StatelessWidget
             leading: Icon(Icons.edit),
             title: Text('Edit Profile'),
             onTap: () {
-              AppRoutes.SETTING;
-                          },
+              Get.toNamed(AppRoutes.SETTING);
+
+         },
           ),
         ),
         Card(
@@ -160,72 +161,71 @@ class HomeView extends StatelessWidget
                             ),
                           ],
                         ),
-                        child: Padding(
-                         padding:  EdgeInsets.all(homecontroller.waterRemindList.isEmpty? 20.0:8.0),
-                         child: Center(                          
-                           child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text.rich(
-                                TextSpan(
+                        child: Center(                          
+                          child: Padding(
+                            padding:  EdgeInsets.only(top: 15.h),
+                            child: Column(
+                               mainAxisAlignment: MainAxisAlignment.center,
                              children: [
+                               Text.rich(
                                  TextSpan(
-                                text: "Hello ${homecontroller.userName.toUpperCase()}, ", // Heading part
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF2F80ED),
-                                  // Royal Blue (Heading)
-                                ),
-                                
-                              ),
-                              TextSpan(
-                                text: homecontroller.waterRemindList.isEmpty
-                                    ? "No Reminder Set" // Subtitle if empty
-                                    : "Next Reminder", // Subtitle if not empty
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF555555),
-                                  
+                              children: [
+                                  TextSpan(
+                                 text: "Hello ${homecontroller.userName.toUpperCase()}", // Heading part
+                                 style: TextStyle(
+                                   fontSize: 18.sp,
+                                   fontFamily: 'Poppins',
+                                   fontWeight: FontWeight.w700,
+                                   color: Color(0xFF2F80ED),
+                                   // Royal Blue (Heading)
+                                 ),),
+                               
+                               TextSpan(
+                                 text: "\nTap + to Log your Next Glass 💧",
+                                 style: TextStyle(
+                                   fontSize: 15.sp,
+                                   fontWeight: FontWeight.bold,
+                                   color: Colors.indigoAccent,
+                                   fontStyle: FontStyle.italic
+
                                    
+                                    
+                                 ),
+                               ),
+                                                           ],
+                                                         ),
+                                                         textAlign: TextAlign.center,
+                                                       ),
+                                                    
+                              SizedBox(height: 10.h),
+                              homecontroller.waterRemindList.isEmpty ? SizedBox():
+                              Text(
+                                homecontroller.waterRemindList.isEmpty
+                                    ? ""
+                                    :
+                                                    
+                                "${nextReminder?.timeOfDay!.format(context)} - ${nextReminder?.waterML} ml",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.indigo,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15.sp,
+                                )),
+                              SizedBox(height: 10.h),
+                              homecontroller.waterRemindList.isEmpty ? SizedBox():
+                              Text(
+                                "In ${homecontroller.getTimeRemaining(nextReminder?.timeOfDay?? TimeOfDay.now())}",
+                             
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blueAccent,
                                 ),
                               ),
-                                                          ],
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                   
-                             SizedBox(height: 10.h),
-                             homecontroller.waterRemindList.isEmpty ? SizedBox():
-                             Text(
-                               homecontroller.waterRemindList.isEmpty
-                                   ? ""
-                                   :
-                                                   
-                               "${nextReminder?.timeOfDay!.format(context)} - ${nextReminder?.waterML} ml",
-                               textAlign: TextAlign.center,
-                               style: TextStyle(
-                                 color: Colors.indigo,
-                                 fontWeight: FontWeight.bold,
-                                 fontSize: 15.sp,
-                               )),
-                             SizedBox(height: 10.h),
-                             homecontroller.waterRemindList.isEmpty ? SizedBox():
-                             Text(
-                               "In ${homecontroller.getTimeRemaining(nextReminder?.timeOfDay?? TimeOfDay.now())}",
-                            
-                               style: TextStyle(
-                                 fontSize: 16,
-                                 color: Colors.blueAccent,
-                               ),
-                             ),
-                             
-                           ],
-                           ),
-                         ),
-                                               ),
+                              
+                            ],
+                            ),
+                          ),
+                        ),
                                                );
                      
                      
@@ -279,26 +279,11 @@ class HomeView extends StatelessWidget
                   
               ))))],
                ),
-                Obx(() { 
-                  if (!homecontroller.showLottie.value) return const SizedBox(); 
-                return Center( child: 
-                Lottie.asset( 
-                'assets/lottie/lottie_animate.json', 
-                 repeat: false,
-                 animate: true,
-                 fit: BoxFit.fill,
-                 reverse: true
-                   ), ); }),
+               
 
-                    Obx(() { 
-                  if (!homecontroller.showLottie.value) return const SizedBox(); 
-                   return Center(
+                     waterAddedAnimation(),
                     
-                    child: floatingText("Water added 200ml"),
-                    );
-                    },
-                    ),
-                    achievementAnimateion()
+                     achievementAnimateion()
                    
 
                    
@@ -376,6 +361,7 @@ Widget floatingText(String text) {
 
 
 Widget achievementAnimateion() {
+
   return Obx(() {
   if (!homecontroller.showGoalAnimation.value) {
     return const SizedBox.shrink();
@@ -435,4 +421,68 @@ Widget achievementAnimateion() {
 });
 
             
-}}
+}
+
+
+Widget waterAddedAnimation() {
+  return Obx(() {
+    if (!homecontroller.showLottie.value) {
+      return const SizedBox.shrink();
+    }
+
+  return Positioned.fill(
+    child: IgnorePointer(
+      ignoring: true,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // dark overlay
+          Container(color: Colors.black.withOpacity(0.35)),
+
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🎉 CONFETTI / SUCCESS LOTTIE
+              Lottie.asset(
+                'assets/lottie/lottie_animate.json',
+                fit: BoxFit.cover,
+                repeat: false,
+              ),
+
+              const SizedBox(height: 16),
+
+              // 🏆 TEXT
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.7, end: 1),
+                duration: const Duration(milliseconds: 600),
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Text(
+                      'Water Added 200 ml 🎉',
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 20,
+                            color: Colors.blueAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+});
+
+}
+}

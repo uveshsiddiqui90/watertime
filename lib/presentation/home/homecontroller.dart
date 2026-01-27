@@ -642,5 +642,14 @@ void playGoalCompletedAnimation() {
     });
   }
 
+
+String getGreetingText(double percent) 
+{
+  if (percent == 0) return "Let’s start your hydration today 💧";
+  if (percent < 50) return "Good progress, keep sipping 💙";
+  if (percent < 100) return "Almost there! Stay hydrated 🚀";
+  return "Goal achieved! Amazing job 🏆";
+}
+
 }
 
