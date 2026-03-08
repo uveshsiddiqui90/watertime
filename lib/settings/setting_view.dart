@@ -51,6 +51,7 @@ class SettingView extends StatelessWidget {
                   builder: (_) => WeightPickerDialog(initialWeight: settingController.userWeight.toInt(),),
                 );
               },
+              
                            //  enabled: false,
              decoration: InputDecoration(
                labelText: 'Weight (kg)',
@@ -84,7 +85,7 @@ class SettingView extends StatelessWidget {
                                 ),
                               ),
                               child: Center(
- child: Icon(
+                                 child: Icon(
                                   Icons.check,
                                   size: 16,
                                   color: settingController.selectedGender.value =='male' ? Colors.white : Colors.transparent,
@@ -134,15 +135,22 @@ class SettingView extends StatelessWidget {
             /// ✅ Save Button
             ElevatedButton.icon(
               icon: Icon(Icons.save),
-              label: Text('Save Changes'),
+              label: Text('Save Changess'),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
               ),
               onPressed: () async{
-                await settingController.db.insertUser(settingController.nameTxt.value.text,
-                weight: double.tryParse(settingController.weightTxt.value.text),
-                gender: settingController.selectedGender.value.isNotEmpty ? settingController.selectedGender.value : ''
+                // await settingController.db.insertUser(settingController.nameTxt.value.text,
+                // weight: double.tryParse(settingController.weightTxt.value.text),
+                // gender: settingController.selectedGender.value.isNotEmpty ? settingController.selectedGender.value : ''
+                // );
+                await settingController.db.updateUserData(
+                  settingController.userId.value,
+                  name:  settingController.nameTxt.value.text,
+                  weight: double.tryParse(settingController.weightTxt.value.text),
+                  gender: settingController.selectedGender.value.isNotEmpty ? settingController.selectedGender.value : ''
                 );
+                settingController.updateTagetAmount();
 
                 Get.back();
            

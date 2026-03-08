@@ -55,6 +55,8 @@ dependencies:
   firebase_messaging: ^16.1.1
   firebase_core: ^4.4.0
   lottie: ^3.3.1
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.7
 
 
 dev_dependencies:
@@ -69,6 +71,23 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   drift_dev: ^2.26.1
   build_runner: ^2.4.15
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/app_icon.png"
+
+flutter_native_splash:
+  color: "#E3F2FD"   # background color
+  image: assets/logo/splash_icon.png
+  android: true
+  ios: true
+  android_12:
+    image: assets/logo/splash_icon.png
+    color: "#E3F2FD"
+
+
+  
   
 
 # For information on the generic Dart part of this file, see the
@@ -93,6 +112,7 @@ flutter:
    - assets/images/add_water.png
    - assets/lottie/lottie_animate.json
    - assets/lottie/celebration.json
+   - assets/logo/app_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

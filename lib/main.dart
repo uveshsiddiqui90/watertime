@@ -101,9 +101,11 @@ class MyApp extends StatelessWidget
     
   }
 
-  static Future<void> ensureUserExists() async {
+  static Future<void> ensureUserExists() async 
+  {
   final user = await db.getLatestUser();
-  if (user == null) {
+  if (user == null) 
+  {
     await db.insertUser("Test User", gender: "Male", weight: 70.0,consumedAmount: 200.0);
   }else {
     print("User already exists: ${user.name}");
@@ -177,7 +179,8 @@ static Future<void> forceMidnightTest() async {
 
   print("🚀 Force midnight test done: History updated & amount reset");
 }
-static Future<void> initFirebaseInBackground() async {
+static Future<void> initFirebaseInBackground() async 
+{
   try {
     await Firebase.initializeApp();
 
