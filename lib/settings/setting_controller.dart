@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:watertime/constants/app_string.dart';
 import 'package:watertime/constants/waterprogress_indicator/waterprogress_controller.dart';
 import 'package:watertime/database/app_database.dart';
 
@@ -35,11 +36,11 @@ class SettingController extends GetxController {
     userWeight.value = user.weight?.toInt() ?? 70; // Default weight if null
     userId.value = user.id; // Store the user ID for later updates
     print("value of user gender ${user.gender}");
-    if(user.gender =='male')
+    if(user.gender == AppString.male)
     {
-      selectedGender.value = 'male';
+      selectedGender.value = AppString.male;
       }else{
-        selectedGender.value = 'female';
+        selectedGender.value = AppString.female;
       }
 
   }
@@ -52,7 +53,7 @@ void editUser() async {
 int calculateWaterTarget({required double weightInKg, required String gender}) 
 {
      
-    if(gender =='male'){
+    if(gender == AppString.male){
        return (weightInKg * 35).round(); // ml
     }else{
        return (weightInKg * 31).round(); // ml

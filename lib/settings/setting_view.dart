@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:watertime/constants/app_string.dart';
 import 'package:watertime/constants/widgets.dart';
 import 'package:watertime/presentation/home/homecontroller.dart';
 import 'package:watertime/settings/setting_controller.dart';
@@ -72,14 +73,14 @@ class SettingView extends StatelessWidget {
                           Row(children: [
                             GestureDetector(
                               onTap: (){
-                               settingController.selectedGender.value = 'male';
+                               settingController.selectedGender.value = AppString.male;
                               },
                               child: Container(
                                 width: 20,
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
-                                  color: settingController.selectedGender.value == 'male' ? Colors.blue : Colors.transparent,
+                                  color: settingController.selectedGender.value == AppString.male ? Colors.blue : Colors.transparent,
                                   border: Border.all(
                                     width: 1
                                 ),
@@ -88,24 +89,24 @@ class SettingView extends StatelessWidget {
                                  child: Icon(
                                   Icons.check,
                                   size: 16,
-                                  color: settingController.selectedGender.value =='male' ? Colors.white : Colors.transparent,
+                                  color: settingController.selectedGender.value == AppString.male ? Colors.white : Colors.transparent,
                               ),
                             ))),
                             SizedBox(width: 5.w,),
                             
-                            Text("Male", style: TextStyle(fontSize: 16)),
+                            Text(AppString.male, style: TextStyle(fontSize: 16)),
                            ],),
                           Row(children: [
                             InkWell(
                               onTap: (){
-                                settingController.selectedGender.value = 'female';
+                                settingController.selectedGender.value = AppString.female;
                               },
                               child: Container(
                                 width: 20,
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
-                                  color:settingController.selectedGender.value == 'female' ? Colors.blue : Colors.transparent,
+                                  color:settingController.selectedGender.value == AppString.female ? Colors.blue : Colors.transparent,
                                   border: Border.all(
                                     width: 1
                                 ),
@@ -114,7 +115,7 @@ class SettingView extends StatelessWidget {
                                   child: Icon(
                                     Icons.check,
                                      size: 16,
-                        color: settingController.selectedGender.value =='female' ? Colors.white : Colors.transparent,
+                        color: settingController.selectedGender.value == AppString.female ? Colors.white : Colors.transparent,
                     ),
                   )
                     
@@ -122,7 +123,7 @@ class SettingView extends StatelessWidget {
                     
             ),
             SizedBox(width: 5.w,),
-                Text("Female", style: TextStyle(fontSize: 16)),
+                Text(AppString.female, style: TextStyle(fontSize: 16)),
             
             ]  ),
                 
