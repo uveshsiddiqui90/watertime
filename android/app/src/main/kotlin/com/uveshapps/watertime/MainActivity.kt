@@ -1,4 +1,4 @@
-package com.example.watertime
+package com.uveshapps.watertime
 
 import io.flutter.embedding.android.FlutterActivity
 

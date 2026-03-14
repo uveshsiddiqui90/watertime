@@ -1,111 +1,113 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-  
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
   <!-- Permissions -->
-  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-  <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-  <uses-permission android:name="android.permission.WAKE_LOCK" />
-  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+  <!-- Remove AD_ID if added by any SDK -->
+  <uses-permission
+      android:name="com.google.android.gms.permission.AD_ID"
+      tools:node="remove"/>
 
   <application
-    android:label="watertime"
-    android:name="${applicationName}"
-    android:icon="@mipmap/ic_launcher"
-    android:allowBackup="false"
-    android:fullBackupContent="false">
+      android:label="watertime"
+      android:name="${applicationName}"
+      android:icon="@mipmap/ic_launcher"
+      android:allowBackup="false"
+      android:fullBackupContent="false">
 
-    <activity
-      android:name=".MainActivity"
-      android:exported="true"
-      android:launchMode="singleTop"
-      android:taskAffinity=""
-      android:theme="@style/LaunchTheme"
-      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-      android:hardwareAccelerated="true"
-      android:windowSoftInputMode="adjustResize">
+      <activity
+          android:name=".MainActivity"
+          android:exported="true"
+          android:launchMode="singleTop"
+          android:taskAffinity=""
+          android:theme="@style/LaunchTheme"
+          android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+          android:hardwareAccelerated="true"
+          android:windowSoftInputMode="adjustResize">
 
+          <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"/>
+
+          <meta-data
+              android:name="com.google.firebase.messaging.default_notification_icon"
+              android:resource="@drawable/app_icon"/>
+
+          <meta-data
+              android:name="com.google.firebase.messaging.default_notification_color"
+              android:resource="@color/notification_color"/>
+
+          <intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
+              <category android:name="android.intent.category.LAUNCHER"/>
+          </intent-filter>
+      </activity>
+
+      <!-- Flutter -->
       <meta-data
-        android:name="io.flutter.embedding.android.NormalTheme"
-        android:resource="@style/NormalTheme" />
+          android:name="flutterEmbedding"
+          android:value="2"/>
 
-      <meta-data
-        android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@drawable/app_icon" />
+      <!-- flutter_local_notifications -->
+      <receiver
+          android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+          android:exported="false"/>
 
-      <meta-data
-        android:name="com.google.firebase.messaging.default_notification_color"
-        android:resource="@color/notification_color" />
-  
+      <receiver
+          android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+          android:enabled="false"
+          android:exported="false">
+          <intent-filter>
+              <action android:name="android.intent.action.BOOT_COMPLETED"/>
+          </intent-filter>
+      </receiver>
 
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
+      <!-- android_alarm_manager_plus -->
+      <receiver
+          android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
+          android:exported="true"/>
 
-    <!-- Flutter -->
-    <meta-data
-      android:name="flutterEmbedding"
-      android:value="2" />
+      <receiver
+          android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
+          android:enabled="true"
+          android:exported="true">
+          <intent-filter>
+              <action android:name="android.intent.action.BOOT_COMPLETED"/>
+              <action android:name="android.intent.action.REBOOT"/>
+          </intent-filter>
+      </receiver>
 
-    <!-- flutter_local_notifications -->
-    <receiver
-      android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
-      android:exported="false" />
+      <receiver
+          android:name="com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsReceiver"
+          android:exported="true"/>
 
-    <receiver
-      android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
-      android:enabled="false"
-      android:exported="false">
-      <intent-filter>
-        <action android:name="android.intent.action.BOOT_COMPLETED" />
-      </intent-filter>
-    </receiver>
+      <service
+          android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
+          android:permission="android.permission.BIND_JOB_SERVICE"
+          android:exported="true"/>
 
-    <!-- android_alarm_manager_plus -->
-    <receiver
-      android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
-      android:exported="true" />
+      <service
+          android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmForegroundService"
+          android:exported="true"
+          android:foregroundServiceType="dataSync"/>
 
-    <receiver
-      android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
-      android:enabled="true"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.BOOT_COMPLETED" />
-        <action android:name="android.intent.action.REBOOT" />
-      </intent-filter>
-    </receiver>
-
-    <receiver
-    android:name="com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsReceiver"
-    android:exported="true"/>
-
-
-    <service
-      android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
-      android:permission="android.permission.BIND_JOB_SERVICE"
-      android:exported="true" />
-
-    <service
-      android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmForegroundService"
-      android:exported="true"
-      android:foregroundServiceType="location|dataSync|connectedDevice" />
-
-    <service
-      android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
-      android:permission="android.permission.BIND_JOB_SERVICE"
-      android:exported="true" />
-    
+      <service
+          android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+          android:permission="android.permission.BIND_JOB_SERVICE"
+          android:exported="true"/>
 
   </application>
 
   <!-- For PROCESS_TEXT plugin -->
   <queries>
-    <intent>
-      <action android:name="android.intent.action.PROCESS_TEXT" />
-      <data android:mimeType="text/plain" />
-    </intent>
+      <intent>
+          <action android:name="android.intent.action.PROCESS_TEXT"/>
+          <data android:mimeType="text/plain"/>
+      </intent>
   </queries>
+
 </manifest>
